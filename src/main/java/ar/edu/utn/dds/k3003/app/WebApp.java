@@ -64,7 +64,8 @@ public class WebApp {
                 configOverrides.put(key, value);
             }
         }
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("db", configOverrides);
-        return entityManagerFactory;
+        return Persistence.createEntityManagerFactory("db", configOverrides);
     }
+
+
 }
