@@ -21,9 +21,9 @@ public class Heladera {
     private String nombre;
     @Column
     private Integer cantidadDeViandas;
-    @OneToMany
+    @OneToMany (mappedBy = "heladeraID")
     Collection <Vianda> viandas;
-    @OneToMany
+    @OneToMany (mappedBy = "heladeraId")
     Collection<Temperatura>temperaturas;
 
     public Heladera(String nombre) {
