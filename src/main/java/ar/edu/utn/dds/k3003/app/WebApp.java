@@ -61,7 +61,10 @@ public class WebApp {
         for (String key : keys) {
             if (env.containsKey(key)) {
                 String value = env.get(key);
+                System.out.println(key + " = " + value);
                 configOverrides.put(key, value);
+            } else {
+                System.out.println("Variable de entorno no encontrada: " + key);
             }
         }
         return Persistence.createEntityManagerFactory("db", configOverrides);

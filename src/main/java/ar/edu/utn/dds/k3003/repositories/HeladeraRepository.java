@@ -24,7 +24,7 @@ public class HeladeraRepository {
     public Collection<Heladera> heladeras;
 
     //private EntityManagerFactory entityManagerFactory= Persistence.createEntityManagerFactory("tpDDS");
-    private EntityManagerFactory entityManagerFactory=null;
+    private EntityManagerFactory entityManagerFactory;
     public EntityManager entityManager;
 
     public HeladeraRepository() {
