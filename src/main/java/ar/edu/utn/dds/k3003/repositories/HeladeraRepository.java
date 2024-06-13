@@ -29,7 +29,7 @@ public class HeladeraRepository {
 
     public HeladeraRepository() {
         this.heladeras=new ArrayList<>();
-        this.entityManager=entityManagerFactory.createEntityManager();
+        //this.entityManager=entityManagerFactory.createEntityManager();
     }
 
 

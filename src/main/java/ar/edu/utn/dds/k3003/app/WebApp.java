@@ -23,9 +23,10 @@ public class WebApp {
         Integer port = Integer.parseInt(System.getProperty("port", "8080"));
         Javalin app = Javalin.create().start(port);
         var fachada = new Fachada();
+        fachada.getRepoHeladera().setEntityManagerFactory(entityManagerFactory);
+        fachada.getRepoHeladera().setEntityManager(entityManagerFactory.createEntityManager());
         var objectMapper = createObjectMapper();
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
-        fachada.getRepoHeladera().setEntityManagerFactory(entityManagerFactory);
         app.get("/", ctx -> ctx.result("Hola"));
         app.post("/heladeras", new AltaHeladeraController(fachada));
         app.get("/heladeras/{idHeladera}", new SearchHeladeraController(fachada));
