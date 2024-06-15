@@ -26,7 +26,10 @@ public class WebApp {
         fachada.getRepoHeladera().setEntityManagerFactory(entityManagerFactory);
         fachada.getRepoHeladera().setEntityManager(entityManagerFactory.createEntityManager());
         var objectMapper = createObjectMapper();
+        var eliminarController= new EliminarController(fachada);
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
+
+        
         app.get("/", ctx -> ctx.result("Hola"));
         app.post("/heladeras", new AltaHeladeraController(fachada));
         app.get("/heladeras/{idHeladera}", new SearchHeladeraController(fachada));
@@ -35,6 +38,8 @@ public class WebApp {
         app.get("/heladeras/{idHeladera}/temperaturas", new ObtenerTemperaturasController(fachada));
         app.post("/depositos", new DepositarViandaController(fachada));
         app.post("/retiros", new RetirarViandaController(fachada));
+        app.delete("/heladeras", eliminarController::eliminarHeladeras);
+
     }
 
     public static ObjectMapper createObjectMapper() {

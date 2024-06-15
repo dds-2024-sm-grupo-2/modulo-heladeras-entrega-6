@@ -12,7 +12,7 @@
         <class>ar.edu.utn.dds.k3003.model.Vianda</class>
 
         <properties>
-            <property name="hibernate.default_schema" value="public"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.connection.pool_size" value="10" />
             <property name="hibernate.archive.autodetection" value="class" />
             <property name="hibernate.show_sql" value="true" />

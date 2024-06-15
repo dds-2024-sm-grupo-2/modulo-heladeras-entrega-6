@@ -165,6 +165,17 @@ public class HeladeraRepository {
         }
         return viandas;
     }
+    public void eliminarHeladeras(){
+
+            entityManager.getTransaction().begin();
+            try {
+                int deletedCount = entityManager.createQuery("DELETE FROM Heladera ").executeUpdate();
+                entityManager.getTransaction().commit();
+            } catch (Exception e) {
+                entityManager.getTransaction().rollback();
+                throw e;
+            }
+        }
 
 }
 
