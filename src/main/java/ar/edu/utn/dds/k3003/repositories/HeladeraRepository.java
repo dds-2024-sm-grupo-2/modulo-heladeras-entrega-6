@@ -175,8 +175,27 @@ public class HeladeraRepository {
                 entityManager.getTransaction().rollback();
                 throw e;
             }
+    }
+    public void eliminarViandas(){
+        entityManager.getTransaction().begin();
+        try {
+            int deletedCount = entityManager.createQuery("DELETE FROM Vianda ").executeUpdate();
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            throw e;
         }
-
+    }
+    public void eliminarTemperaturas(){
+        entityManager.getTransaction().begin();
+        try {
+            int deletedCount = entityManager.createQuery("DELETE FROM Temperatura ").executeUpdate();
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            throw e;
+        }
+    }
 }
 
 

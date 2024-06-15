@@ -25,4 +25,12 @@ public class EliminarController implements Handler {
         fachada.getRepoHeladera().eliminarHeladeras();
         ctx.status(HttpStatus.NO_CONTENT);
     }
+    public void eliminarViandas(Context ctx) {
+        fachada.getRepoHeladera().eliminarViandas();
+        ctx.status(HttpStatus.NO_CONTENT);
+    }
+    public void eliminarTemperaturas(Context ctx) {
+        fachada.getRepoHeladera().eliminarTemperaturas();
+        ctx.status(HttpStatus.NO_CONTENT);
+    }
 }
