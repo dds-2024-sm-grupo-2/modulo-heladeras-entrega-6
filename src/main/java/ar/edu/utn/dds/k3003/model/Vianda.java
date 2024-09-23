@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Entity
 public class Vianda {
     @Id
-    @GeneratedValue
     private Long id;
     @Column(nullable = false)
     private String qr;
