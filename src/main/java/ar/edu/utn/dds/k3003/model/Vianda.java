@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Vianda {
     @Id
+    @GeneratedValue
     private Long id;
     @Column(nullable = false)
     private String qr;
@@ -27,8 +28,7 @@ public class Vianda {
     @Column (columnDefinition = "Date")
     private LocalDateTime fechaElaboracion;
 
-    public Vianda(Long id,String qr, Long heladeraID, EstadoViandaEnum estado, Long colaboradorID, LocalDateTime fechaElaboracion) {
-        this.id=id;
+    public Vianda(String qr, Long heladeraID, EstadoViandaEnum estado, Long colaboradorID, LocalDateTime fechaElaboracion) {
         this.qr = qr;
         this.heladeraID = heladeraID;
         this.estado = estado;
