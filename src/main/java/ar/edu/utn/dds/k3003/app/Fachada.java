@@ -65,7 +65,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     public void depositar(Integer integer, String s) throws NoSuchElementException {
         Heladera heladera = this.repoHeladera.findById(integer);
         ViandaDTO viandaDTO = fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
-        Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
+        Vianda vianda = new Vianda(viandaDTO.getId(),viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
         heladera.guardarVianda(vianda);
         repoHeladera.guardarVianda(vianda);
         repoHeladera.actualizar(heladera);
@@ -85,7 +85,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     public void retirar(RetiroDTO retiroDTO) throws NoSuchElementException {
         Heladera heladera = this.repoHeladera.findById(retiroDTO.getHeladeraId());
         ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(retiroDTO.getQrVianda());
-        Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
+        Vianda vianda = new Vianda(viandaDTO.getId(),viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
         heladera.eliminarVianda(vianda);
         fachadaViandas.modificarEstado(vianda.getQr(), EstadoViandaEnum.RETIRADA);
         repoHeladera.eliminarVianda(vianda);

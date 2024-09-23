@@ -28,7 +28,8 @@ public class Vianda {
     @Column (columnDefinition = "Date")
     private LocalDateTime fechaElaboracion;
 
-    public Vianda(String qr, Long heladeraID, EstadoViandaEnum estado, Long colaboradorID, LocalDateTime fechaElaboracion) {
+    public Vianda(Long id,String qr, Long heladeraID, EstadoViandaEnum estado, Long colaboradorID, LocalDateTime fechaElaboracion) {
+        this.id=id;
         this.qr = qr;
         this.heladeraID = heladeraID;
         this.estado = estado;
