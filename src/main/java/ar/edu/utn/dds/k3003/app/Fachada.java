@@ -64,10 +64,10 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     @Override
     public void depositar(Integer integer, String s) throws NoSuchElementException {
         Heladera heladera = this.repoHeladera.findById(integer);
+        fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
         ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(s);
         Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
         heladera.guardarVianda(vianda);
-        fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
         repoHeladera.guardarVianda(vianda);
         repoHeladera.actualizar(heladera);
     }
