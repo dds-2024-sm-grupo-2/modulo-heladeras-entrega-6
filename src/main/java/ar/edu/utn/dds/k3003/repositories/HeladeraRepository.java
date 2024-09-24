@@ -116,6 +116,7 @@ public class HeladeraRepository {
         try {
             t.begin();
             entityManager.persist(vianda);
+            entityManager.merge(vianda);
             t.commit();
         } catch (Exception e) {
             if (t != null && t.isActive()) {

@@ -64,12 +64,11 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     @Override
     public void depositar(Integer integer, String s) throws NoSuchElementException {
         Heladera heladera = this.repoHeladera.findById(integer);
-        //ViandaDTO viandaDTO = fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
-        //Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
-        //ViandaDTO viandaDTO= fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
-        fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
-        ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(s);
+        ViandaDTO viandaDTO = fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
         Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
+        //fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
+        //ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(s);
+        //Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
         System.out.println(viandaDTO.getEstado().toString());
         heladera.guardarVianda(vianda);
         repoHeladera.guardarVianda(vianda);
