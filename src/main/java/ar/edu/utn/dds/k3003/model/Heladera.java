@@ -30,6 +30,7 @@ public class Heladera {
         this.nombre = nombre;
         this.viandas = new ArrayList<>();
         this.temperaturas = new ArrayList<>();
+        this.cantidadDeViandas= viandas.size();
     }
     protected Heladera(){
 
