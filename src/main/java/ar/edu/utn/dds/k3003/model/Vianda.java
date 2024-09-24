@@ -23,8 +23,11 @@ public class Vianda {
     private Long colaboradorID;
     @Column
     private Long heladeraID;
+
+    @Enumerated (EnumType.STRING)
     @Column
     private EstadoViandaEnum estado;
+
     @Column (columnDefinition = "Date")
     private LocalDateTime fechaElaboracion;
 
