@@ -68,8 +68,9 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         //Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
         fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
         //ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(s);
-        ViandaDTO viandaDTO=fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
+        ViandaDTO viandaDTO = fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
         Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
+        vianda.setId(viandaDTO.getId());
         heladera.guardarVianda(vianda);
         repoHeladera.guardarVianda(vianda);
         repoHeladera.guardar(heladera);
