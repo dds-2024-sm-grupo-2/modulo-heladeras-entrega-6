@@ -1,5 +1,6 @@
 package ar.edu.utn.dds.k3003.worker;
 
+import ar.edu.utn.dds.k3003.model.Heladera;
 import ar.edu.utn.dds.k3003.model.Temperatura;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +45,10 @@ public class TemperaturaWorker extends DefaultConsumer {
         this.getChannel().basicAck(envelope.getDeliveryTag(), false);
         String temperaturajson = new String(body, "UTF-8");
         Temperatura temperatura = mapper.readValue(temperaturajson, Temperatura.class);
+        repoHeladera.guardarTemperatura(temperatura);
+        Heladera heladera = repoHeladera.findById(temperatura.getHeladeraId());
+        heladera.agregarTemperatura(temperatura);
+        repoHeladera.actualizar(heladera);
 
 
         System.out.println("Demora..");
