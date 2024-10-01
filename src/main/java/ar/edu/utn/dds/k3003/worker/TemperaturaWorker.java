@@ -22,6 +22,7 @@ import static ar.edu.utn.dds.k3003.app.WebApp.startEntityManagerFactory;
 public class TemperaturaWorker extends DefaultConsumer {
     private String queueName;
     private EntityManagerFactory entityManagerFactory;
+    private HeladeraRepository repoHeladera;
 
     public TemperaturaWorker(Channel channel, String queueName) {
         super(channel);
@@ -35,10 +36,6 @@ public class TemperaturaWorker extends DefaultConsumer {
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
         // Confirmar la recepción del mensaje a la mensajeria
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        HeladeraRepository repoHeladera = new HeladeraRepository();
-        repoHeladera.setEntityManager(entityManager);
-        repoHeladera.setEntityManagerFactory(entityManagerFactory);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
@@ -48,6 +45,7 @@ public class TemperaturaWorker extends DefaultConsumer {
         repoHeladera.guardarTemperatura(temperatura);
         Heladera heladera = repoHeladera.findById(temperatura.getHeladeraId());
         heladera.agregarTemperatura(temperatura);
+        repoHeladera.guardar(heladera);
         repoHeladera.actualizar(heladera);
 
 
@@ -83,9 +81,9 @@ public class TemperaturaWorker extends DefaultConsumer {
 
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-        //EntityManagerFactory entityManagerFactory = startEntityManagerFactory();
+        EntityManagerFactory entityManagerFactory = startEntityManagerFactory();
         TemperaturaWorker worker = new TemperaturaWorker(channel,queueName);
-        //worker.setEntityManagerFactory(entityManagerFactory);
+        worker.setEntityManagerFactory(entityManagerFactory);
         worker.init();
     }
 

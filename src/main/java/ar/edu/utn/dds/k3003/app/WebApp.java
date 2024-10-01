@@ -36,6 +36,24 @@ public class WebApp {
         var eliminarController= new EliminarController(fachada);
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
         //---------------WORKER--------------------//
+        Map<String, String> env = System.getenv();
+        ConnectionFactory factory = new ConnectionFactory();
+        //factory.setHost(env.get("QUEUE_HOST"));
+        factory.setHost("prawn.rmq.cloudamqp.com");
+        //factory.setUsername(env.get("QUEUE_USERNAME"));
+        factory.setUsername("wcvuathu");
+        factory.setVirtualHost("wcvuathu");
+        //factory.setPassword(env.get("QUEUE_PASSWORD"));
+        factory.setPassword("IkXGMtAKDhWgnR3wIyDCx0eIaBC0xVFt");
+        //String queueName = env.get("QUEUE_NAME");
+        String queueName = "Temperaturas Queue";
+
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+        TemperaturaWorker worker = new TemperaturaWorker(channel,queueName);
+        worker.setRepoHeladera(fachada.getRepoHeladera());
+        worker.init();
+
         MQUtils mqutils= new MQUtils("prawn.rmq.cloudamqp.com","wcvuathu","IkXGMtAKDhWgnR3wIyDCx0eIaBC0xVFt","wcvuathu","Temperaturas Queue");
         mqutils.init();
         //---------------WORKER--------------------//
