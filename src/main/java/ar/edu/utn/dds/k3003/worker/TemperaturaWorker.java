@@ -5,6 +5,7 @@ import ar.edu.utn.dds.k3003.model.Heladera;
 import ar.edu.utn.dds.k3003.model.Temperatura;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
 import ar.edu.utn.dds.k3003.repositories.TemperaturaMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
@@ -15,6 +16,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
@@ -38,13 +40,11 @@ public class TemperaturaWorker extends DefaultConsumer {
     }
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-        // Crear mappers solo una vez
         TemperaturaMapper temperaturaMapper = new TemperaturaMapper();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
-        // Convertir el cuerpo del mensaje a String
-        String temperaturajson = new String(body, "UTF-8");
+        String temperaturajson = new String(body, StandardCharsets.UTF_8);
 
         try {
             // Deserializar el JSON a un objeto Temperatura
@@ -53,25 +53,19 @@ public class TemperaturaWorker extends DefaultConsumer {
             // Procesar la temperatura
             fachada.temperatura(temperaturaMapper.map(temperatura));
 
-            System.out.println("se recibió el siguiente payload:");
-            System.out.println(mapper.writeValueAsString(temperatura));
-
             // Confirmar la recepción del mensaje después de procesarlo
             this.getChannel().basicAck(envelope.getDeliveryTag(), false);
-        } catch (IOException e) {
-            // Manejar el error de deserialización
-            System.err.println("Error procesando el mensaje: " + e.getMessage());
-            e.printStackTrace();
 
-            // Opcionalmente puedes enviar un NACK si deseas volver a intentar
-            this.getChannel().basicNack(envelope.getDeliveryTag(), false, true);
-        }
-
-        // Simulación de demora (considerar mover esto a un lugar más adecuado)
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
+            System.out.println("Se recibió el siguiente payload:");
+            System.out.println(mapper.writeValueAsString(temperatura));
+        } catch (JsonProcessingException e) {
+            System.err.println("Error de procesamiento del JSON: " + e.getMessage());
             e.printStackTrace();
+            this.getChannel().basicNack(envelope.getDeliveryTag(), false, true); // Reintentar
+        } catch (Exception e) {
+            System.err.println("Error inesperado: " + e.getMessage());
+            e.printStackTrace();
+            this.getChannel().basicNack(envelope.getDeliveryTag(), false, true); // Reintentar
         }
     }
 
