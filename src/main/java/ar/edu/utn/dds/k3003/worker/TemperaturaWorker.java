@@ -38,30 +38,41 @@ public class TemperaturaWorker extends DefaultConsumer {
     }
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-        // Confirmar la recepción del mensaje a la mensajeria
-        TemperaturaMapper temperaturaMapper=new TemperaturaMapper();
+        // Crear mappers solo una vez
+        TemperaturaMapper temperaturaMapper = new TemperaturaMapper();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
-        /**repoHeladera.guardarTemperatura(temperatura);
-         Heladera heladera = repoHeladera.findById(temperatura.getHeladeraId());
-         heladera.agregarTemperatura(temperatura);
-         repoHeladera.guardar(heladera);
-         repoHeladera.actualizar(heladera);
-         */
+        // Convertir el cuerpo del mensaje a String
         String temperaturajson = new String(body, "UTF-8");
-        Temperatura temperatura = mapper.readValue(temperaturajson, Temperatura.class);
-        fachada.temperatura(temperaturaMapper.map(temperatura));
-        this.getChannel().basicAck(envelope.getDeliveryTag(), false);
 
-        System.out.println("Demora..");
+        try {
+            // Deserializar el JSON a un objeto Temperatura
+            Temperatura temperatura = mapper.readValue(temperaturajson, Temperatura.class);
+
+            // Procesar la temperatura
+            fachada.temperatura(temperaturaMapper.map(temperatura));
+
+            System.out.println("se recibió el siguiente payload:");
+            System.out.println(mapper.writeValueAsString(temperatura));
+
+            // Confirmar la recepción del mensaje después de procesarlo
+            this.getChannel().basicAck(envelope.getDeliveryTag(), false);
+        } catch (IOException e) {
+            // Manejar el error de deserialización
+            System.err.println("Error procesando el mensaje: " + e.getMessage());
+            e.printStackTrace();
+
+            // Opcionalmente puedes enviar un NACK si deseas volver a intentar
+            this.getChannel().basicNack(envelope.getDeliveryTag(), false, true);
+        }
+
+        // Simulación de demora (considerar mover esto a un lugar más adecuado)
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("se recibio el siguiente payload:");
-        System.out.println(mapper.writeValueAsString(temperatura));
     }
 
 
