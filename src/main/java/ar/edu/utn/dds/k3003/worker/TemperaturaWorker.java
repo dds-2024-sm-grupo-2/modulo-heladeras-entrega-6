@@ -67,6 +67,11 @@ public class TemperaturaWorker extends DefaultConsumer {
             e.printStackTrace();
             this.getChannel().basicNack(envelope.getDeliveryTag(), false, true); // Reintentar
         }
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
