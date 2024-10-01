@@ -51,7 +51,7 @@ public class WebApp {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
         TemperaturaWorker worker = new TemperaturaWorker(channel,queueName);
-        worker.setRepoHeladera(fachada.getRepoHeladera());
+        worker.setFachada(fachada);
         worker.init();
 
         MQUtils mqutils= new MQUtils("prawn.rmq.cloudamqp.com","wcvuathu","IkXGMtAKDhWgnR3wIyDCx0eIaBC0xVFt","wcvuathu","Temperaturas Queue");

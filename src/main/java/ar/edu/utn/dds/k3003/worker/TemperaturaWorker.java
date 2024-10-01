@@ -1,8 +1,10 @@
 package ar.edu.utn.dds.k3003.worker;
 
+import ar.edu.utn.dds.k3003.facades.FachadaHeladeras;
 import ar.edu.utn.dds.k3003.model.Heladera;
 import ar.edu.utn.dds.k3003.model.Temperatura;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
+import ar.edu.utn.dds.k3003.repositories.TemperaturaMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
@@ -22,7 +24,8 @@ import static ar.edu.utn.dds.k3003.app.WebApp.startEntityManagerFactory;
 public class TemperaturaWorker extends DefaultConsumer {
     private String queueName;
     private EntityManagerFactory entityManagerFactory;
-    private HeladeraRepository repoHeladera;
+    //private HeladeraRepository repoHeladera;
+    private FachadaHeladeras fachada;
 
     public TemperaturaWorker(Channel channel, String queueName) {
         super(channel);
@@ -36,18 +39,19 @@ public class TemperaturaWorker extends DefaultConsumer {
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
         // Confirmar la recepción del mensaje a la mensajeria
+        TemperaturaMapper temperaturaMapper=new TemperaturaMapper();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-
         this.getChannel().basicAck(envelope.getDeliveryTag(), false);
         String temperaturajson = new String(body, "UTF-8");
         Temperatura temperatura = mapper.readValue(temperaturajson, Temperatura.class);
-        repoHeladera.guardarTemperatura(temperatura);
+        /**repoHeladera.guardarTemperatura(temperatura);
         Heladera heladera = repoHeladera.findById(temperatura.getHeladeraId());
         heladera.agregarTemperatura(temperatura);
         repoHeladera.guardar(heladera);
         repoHeladera.actualizar(heladera);
-
+        */
+        fachada.temperatura(temperaturaMapper.map(temperatura));
 
         System.out.println("Demora..");
         try {
