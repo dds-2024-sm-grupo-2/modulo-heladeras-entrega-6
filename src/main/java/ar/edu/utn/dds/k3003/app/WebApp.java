@@ -2,23 +2,30 @@ package ar.edu.utn.dds.k3003.app;
 
 import ar.edu.utn.dds.k3003.Controller.*;
 import ar.edu.utn.dds.k3003.clients.ViandasProxy;
+import ar.edu.utn.dds.k3003.worker.MQUtils;
+import ar.edu.utn.dds.k3003.worker.TemperaturaWorker;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ar.edu.utn.dds.k3003.facades.dtos.Constants;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import io.javalin.Javalin;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeoutException;
 
 public class WebApp {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, TimeoutException {
         EntityManagerFactory entityManagerFactory = startEntityManagerFactory();
         Integer port = Integer.parseInt(System.getProperty("port", "8080"));
         Javalin app = Javalin.create().start(port);
@@ -28,13 +35,15 @@ public class WebApp {
         var objectMapper = createObjectMapper();
         var eliminarController= new EliminarController(fachada);
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
-
-
+        //---------------WORKER--------------------//
+        MQUtils mqutils= new MQUtils("prawn.rmq.cloudamqp.com","wcvuathu","IkXGMtAKDhWgnR3wIyDCx0eIaBC0xVFt","wcvuathu","Temperaturas Queue");
+        mqutils.init();
+        //---------------WORKER--------------------//
         app.get("/", ctx -> ctx.result("Hola"));
         app.post("/heladeras", new AltaHeladeraController(fachada));
         app.get("/heladeras/{idHeladera}", new SearchHeladeraController(fachada));
         app.get("/heladeras", new ListaHeladerasController(fachada));
-        app.post("/temperaturas", new RegistrarTemperaturasController(fachada));
+        app.post("/temperaturas", new RegistrarTemperaturasController(fachada,mqutils));
         app.get("/heladeras/{idHeladera}/temperaturas", new ObtenerTemperaturasController(fachada));
         app.post("/depositos", new DepositarViandaController(fachada));
         app.post("/retiros", new RetirarViandaController(fachada));
