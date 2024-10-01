@@ -42,16 +42,17 @@ public class TemperaturaWorker extends DefaultConsumer {
         TemperaturaMapper temperaturaMapper=new TemperaturaMapper();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-        this.getChannel().basicAck(envelope.getDeliveryTag(), false);
+
+        /**repoHeladera.guardarTemperatura(temperatura);
+         Heladera heladera = repoHeladera.findById(temperatura.getHeladeraId());
+         heladera.agregarTemperatura(temperatura);
+         repoHeladera.guardar(heladera);
+         repoHeladera.actualizar(heladera);
+         */
         String temperaturajson = new String(body, "UTF-8");
         Temperatura temperatura = mapper.readValue(temperaturajson, Temperatura.class);
-        /**repoHeladera.guardarTemperatura(temperatura);
-        Heladera heladera = repoHeladera.findById(temperatura.getHeladeraId());
-        heladera.agregarTemperatura(temperatura);
-        repoHeladera.guardar(heladera);
-        repoHeladera.actualizar(heladera);
-        */
         fachada.temperatura(temperaturaMapper.map(temperatura));
+        this.getChannel().basicAck(envelope.getDeliveryTag(), false);
 
         System.out.println("Demora..");
         try {
