@@ -58,7 +58,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         heladera.setId(heladeraDTO.getId());
         //System.out.println(heladera.getId());
         this.repoHeladera.guardar(heladera);
-        this.heladerasCreadasCounter.count();
+        heladerasCreadasCounter.increment();
         //System.out.println(this.repoHeladera.heladeras.stream().map(h->h.getId()).toList());
         return heladeraMapper.map(heladera);
     }
@@ -81,7 +81,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         repoHeladera.guardarVianda(vianda);
         repoHeladera.guardar(heladera);
         repoHeladera.actualizar(heladera);
-        this.viandasEnHeladerasCounter.count();
+        viandasEnHeladerasCounter.increment();
     }
 
     @Override
@@ -112,7 +112,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         Heladera heladera = repoHeladera.findById(temperatura.getHeladeraId());
         heladera.agregarTemperatura(temperatura);
         repoHeladera.actualizar(heladera);
-        this.temperaturasRegistradasCounter.count();
+        temperaturasRegistradasCounter.increment();
     }
 
     @Override
