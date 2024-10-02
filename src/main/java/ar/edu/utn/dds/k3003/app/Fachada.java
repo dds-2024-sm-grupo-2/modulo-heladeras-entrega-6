@@ -8,6 +8,8 @@ import ar.edu.utn.dds.k3003.model.Vianda;
 import ar.edu.utn.dds.k3003.repositories.HeladeraMapper;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
 import ar.edu.utn.dds.k3003.repositories.TemperaturaMapper;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,6 +35,10 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private final TemperaturaMapper temperaturaMapper;
     private static AtomicLong seqId = new AtomicLong();
 
+  private Counter heladerasCreadasCounter;
+  private Counter viandasEnHeladerasCounter;
+  private Counter temperaturasRegistradasCounter;
+  private PrometheusMeterRegistry registry;
 
     public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper) {
         this.temperaturaMapper = temperaturaMapper;
@@ -52,6 +58,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         heladera.setId(heladeraDTO.getId());
         //System.out.println(heladera.getId());
         this.repoHeladera.guardar(heladera);
+        heladerasCreadasCounter.count();
         //System.out.println(this.repoHeladera.heladeras.stream().map(h->h.getId()).toList());
         return heladeraMapper.map(heladera);
     }
@@ -74,6 +81,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         repoHeladera.guardarVianda(vianda);
         repoHeladera.guardar(heladera);
         repoHeladera.actualizar(heladera);
+        viandasEnHeladerasCounter.count();
     }
 
     @Override
@@ -104,6 +112,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         Heladera heladera = repoHeladera.findById(temperatura.getHeladeraId());
         heladera.agregarTemperatura(temperatura);
         repoHeladera.actualizar(heladera);
+        temperaturasRegistradasCounter.count();
     }
 
     @Override
@@ -116,5 +125,18 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     public void setViandasProxy(FachadaViandas fachadaViandas) {
     this.fachadaViandas= fachadaViandas;
     }
+
+  public void setRegistry(PrometheusMeterRegistry registry) {
+    this.registry = registry;
+    this.heladerasCreadasCounter = Counter.builder("app.heladeras.creadas")
+        .description("Numero de heladeras creadas")
+        .register(registry);
+    this.temperaturasRegistradasCounter = Counter.builder("app.temperaturas.registradas")
+        .description("Numero de temperaturas registradas")
+        .register(registry);
+    this.viandasEnHeladerasCounter=Counter.builder("app.viandas.heladeras")
+        .description("Numero de viandas en heladera")
+        .register(registry);
+  }
 
 }

@@ -13,6 +13,14 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.javalin.Javalin;
+import io.javalin.micrometer.MicrometerPlugin;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmHeapPressureMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -28,7 +36,6 @@ public class WebApp {
     public static void main(String[] args) throws IOException, TimeoutException {
         EntityManagerFactory entityManagerFactory = startEntityManagerFactory();
         Integer port = Integer.parseInt(System.getProperty("port", "8080"));
-        Javalin app = Javalin.create().start(port);
         var fachada = new Fachada();
         fachada.getRepoHeladera().setEntityManagerFactory(entityManagerFactory);
         fachada.getRepoHeladera().setEntityManager(entityManagerFactory.createEntityManager());
@@ -57,6 +64,27 @@ public class WebApp {
         MQUtils mqutils= new MQUtils("prawn.rmq.cloudamqp.com","wcvuathu","IkXGMtAKDhWgnR3wIyDCx0eIaBC0xVFt","wcvuathu","Temperaturas Queue");
         mqutils.init();
         //---------------WORKER--------------------//
+
+        //---------------METRICS-------------------//
+        var TOKEN = env.get("TOKEN");
+
+        final var registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+
+        registry.config().commonTags("app", "metrics-sample");
+
+        try (var jvmGcMetrics = new JvmGcMetrics();
+             var jvmHeapPressureMetrics = new JvmHeapPressureMetrics()) {
+            jvmGcMetrics.bindTo(registry);
+            jvmHeapPressureMetrics.bindTo(registry);
+        }
+        new JvmMemoryMetrics().bindTo(registry);
+        new ProcessorMetrics().bindTo(registry);
+        new FileDescriptorMetrics().bindTo(registry);
+        fachada.setRegistry(registry);
+        final var micrometerPlugin = new MicrometerPlugin(config -> config.registry = registry);
+        var app = Javalin.create(config -> { config.registerPlugin(micrometerPlugin); }).start(port);
+
+        //--------------------METRICS-----------------//
         app.get("/", ctx -> ctx.result("Hola"));
         app.post("/heladeras", new AltaHeladeraController(fachada));
         app.get("/heladeras/{idHeladera}", new SearchHeladeraController(fachada));
@@ -68,6 +96,15 @@ public class WebApp {
         app.delete("/heladeras", eliminarController::eliminarHeladeras);
         app.delete("/viandas", eliminarController::eliminarViandas);
         app.delete("/temperaturas", eliminarController::eliminarTemperaturas);
+        app.get("/metrics", ctx -> {
+            var auth = ctx.header("Authorization");
+            if (auth != null && auth.equals("Bearer " + TOKEN)) {
+                ctx.contentType("text/plain; version=0.0.4")
+                    .result(registry.scrape());
+            } else {
+                ctx.status(401).json("{\"error\": \"Unauthorized access\"}");
+            }
+        });
 
     }
 
