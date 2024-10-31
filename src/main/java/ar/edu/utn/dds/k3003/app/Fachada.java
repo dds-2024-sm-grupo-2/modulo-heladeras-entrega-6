@@ -1,13 +1,11 @@
 package ar.edu.utn.dds.k3003.app;
 
+import ar.edu.utn.dds.k3003.clients.ColaboradoresProxy;
 import ar.edu.utn.dds.k3003.facades.FachadaColaboradores;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.facades.dtos.*;
 import ar.edu.utn.dds.k3003.model.*;
-import ar.edu.utn.dds.k3003.model.Subscriptor.Subscriptor;
-import ar.edu.utn.dds.k3003.model.Subscriptor.SubscriptorDesperfecto;
-import ar.edu.utn.dds.k3003.model.Subscriptor.SubscriptorViandasDisponibles;
-import ar.edu.utn.dds.k3003.model.Subscriptor.SubscriptorViandasFaltantes;
+import ar.edu.utn.dds.k3003.model.Subscriptor.*;
 import ar.edu.utn.dds.k3003.repositories.HeladeraMapper;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
 import ar.edu.utn.dds.k3003.repositories.TemperaturaMapper;
@@ -35,7 +33,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private final HeladeraRepository repoHeladera;
     private final HeladeraMapper heladeraMapper;
     private FachadaViandas fachadaViandas;
-    private FachadaColaboradores fachadaColaboradores;
+    private ColaboradoresProxy fachadaColaboradores;
     private final TemperaturaMapper temperaturaMapper;
     private static AtomicLong seqId = new AtomicLong();
 
@@ -158,7 +156,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
 
     public Collection<Long> chequearViandasDisponibles(Heladera heladera) {
         Integer cantDisponibles = heladera.getCantViandas();
-        Collection<Long> subs = new ArrayList<>();
+        List<Long> subs = new ArrayList<>();
 
         for (SubscriptorViandasDisponibles subscriptor : heladera.getSubscriptoresViandasDisponibles()) {
             if (Objects.equals(subscriptor.getNviandas(), cantDisponibles)) {
@@ -167,16 +165,17 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         }
 
         if (!subs.isEmpty()) {
+            fachadaColaboradores.evento(new NotificacionDTO(subs, "Notificacion para viandas disponibles"));
             return subs;
         } else {
             return null;
         }
     }
 
-    public Collection<Long> chequearViandasFaltantes(Heladera heladera) {
+    public List<Long> chequearViandasFaltantes(Heladera heladera) {
         Integer cantTotal = heladera.getCantidadDeViandas();
         Integer cantDisponibles = heladera.getCantViandas();
-        Collection<Long> subs = new ArrayList<>();
+        List<Long> subs = new ArrayList<>();
 
         for (SubscriptorViandasFaltantes sub : heladera.getSubscriptoresViandasFaltantes()) {
             if (cantTotal - cantDisponibles == sub.getNviandasFaltantes()) {
@@ -185,18 +184,20 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         }
 
         if (!subs.isEmpty()) {
+            fachadaColaboradores.evento(new NotificacionDTO(subs,"Notificacion para faltante de cantidad de viandas"));
             return subs;
         } else {
             return null;
         }
     }
 
-    public Collection<Long> chequearDesperfecto(Heladera heladera){
-        Collection<Long> subs = new ArrayList<>();
+    public List<Long> chequearDesperfecto(Heladera heladera){
+        List<Long> subs = new ArrayList<>();
         for(SubscriptorDesperfecto sub: heladera.getSubscriptoresDesperfecto()){
             subs.add(sub.getIdColaborador());
         }
         if (!subs.isEmpty()) {
+            fachadaColaboradores.evento(new NotificacionDTO(subs, "Notificacion para heladera inactiva"));
             return subs;
         } else {
             return null;

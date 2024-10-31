@@ -53,7 +53,7 @@ public class CambiarEstadoHeladeraController implements Handler{
                 heladera.setEstaActiva(Boolean.FALSE);
             }
             fachada.getRepoHeladera().actualizar(heladera);
-
+            fachada.chequearDesperfecto(heladera);
             ctx.result("Heladera cambiada de estado (estaActiva)");
             ctx.status(200);
         }

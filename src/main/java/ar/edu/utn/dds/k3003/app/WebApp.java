@@ -1,6 +1,7 @@
 package ar.edu.utn.dds.k3003.app;
 
 import ar.edu.utn.dds.k3003.Controller.*;
+import ar.edu.utn.dds.k3003.clients.ColaboradoresProxy;
 import ar.edu.utn.dds.k3003.clients.ViandasProxy;
 import ar.edu.utn.dds.k3003.worker.MQUtils;
 import ar.edu.utn.dds.k3003.worker.TemperaturaWorker;
@@ -45,6 +46,7 @@ public class WebApp {
         var subController = new SubscriptoresController(fachada);
         var controllerEstado = new CambiarEstadoHeladeraController(fachada);
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
+        fachada.setFachadaColaboradores(new ColaboradoresProxy(objectMapper));
         //---------------WORKER--------------------//
         Map<String, String> env = System.getenv();
         ConnectionFactory factory = new ConnectionFactory();
