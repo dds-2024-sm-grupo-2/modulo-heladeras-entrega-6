@@ -13,6 +13,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.javalin.Javalin;
+import io.javalin.http.Handler;
 import io.javalin.micrometer.MicrometerPlugin;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmHeapPressureMetrics;
@@ -40,7 +41,9 @@ public class WebApp {
         fachada.getRepoHeladera().setEntityManagerFactory(entityManagerFactory);
         fachada.getRepoHeladera().setEntityManager(entityManagerFactory.createEntityManager());
         var objectMapper = createObjectMapper();
-        var eliminarController= new EliminarController(fachada);
+        var eliminarController = new EliminarController(fachada);
+        var subController = new SubscriptoresController(fachada);
+        var controllerEstado = new CambiarEstadoHeladeraController(fachada);
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
         //---------------WORKER--------------------//
         Map<String, String> env = System.getenv();
@@ -57,11 +60,11 @@ public class WebApp {
 
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-        TemperaturaWorker worker = new TemperaturaWorker(channel,queueName);
+        TemperaturaWorker worker = new TemperaturaWorker(channel, queueName);
         worker.setFachada(fachada);
         worker.init();
 
-        MQUtils mqutils= new MQUtils("prawn.rmq.cloudamqp.com","wcvuathu","IkXGMtAKDhWgnR3wIyDCx0eIaBC0xVFt","wcvuathu","Temperaturas Queue");
+        MQUtils mqutils = new MQUtils("prawn.rmq.cloudamqp.com", "wcvuathu", "IkXGMtAKDhWgnR3wIyDCx0eIaBC0xVFt", "wcvuathu", "Temperaturas Queue");
         mqutils.init();
         //---------------WORKER--------------------//
 
@@ -82,14 +85,16 @@ public class WebApp {
         new FileDescriptorMetrics().bindTo(registry);
         fachada.setRegistry(registry);
         final var micrometerPlugin = new MicrometerPlugin(config -> config.registry = registry);
-        var app = Javalin.create(config -> { config.registerPlugin(micrometerPlugin); }).start(port);
+        var app = Javalin.create(config -> {
+            config.registerPlugin(micrometerPlugin);
+        }).start(port);
 
         //--------------------METRICS-----------------//
         app.get("/", ctx -> ctx.result("Hola"));
         app.post("/heladeras", new AltaHeladeraController(fachada));
         app.get("/heladeras/{idHeladera}", new SearchHeladeraController(fachada));
         app.get("/heladeras", new ListaHeladerasController(fachada));
-        app.post("/temperaturas", new RegistrarTemperaturasController(fachada,mqutils));
+        app.post("/temperaturas", new RegistrarTemperaturasController(fachada, mqutils));
         app.get("/heladeras/{idHeladera}/temperaturas", new ObtenerTemperaturasController(fachada));
         app.post("/depositos", new DepositarViandaController(fachada));
         app.post("/retiros", new RetirarViandaController(fachada));
@@ -100,12 +105,25 @@ public class WebApp {
             var auth = ctx.header("Authorization");
             if (auth != null && auth.equals("Bearer " + TOKEN)) {
                 ctx.contentType("text/plain; version=0.0.4")
-                    .result(registry.scrape());
+                        .result(registry.scrape());
             } else {
                 ctx.status(401).json("{\"error\": \"Unauthorized access\"}");
             }
         });
 
+
+
+        // Sensores
+        app.post("/activarSensor/{idHeladera}", new SensorController(fachada));
+        // Cambiar estado de cerrado a abierto. De inactivo a activo (viceversa en ambos)
+        app.post("/cambiarEstadoAbierto/{idHeladera}", controllerEstado::cambiarEstadoAbierto );
+        app.post("/cambiarEstadoActivo/{idHeladera}", controllerEstado::cambiarEstadoActivo );
+
+        // Suscripciones y sensores
+        app.post("/suscribirviandasdisponibles", subController::suscribirViandasDisponibles);
+        app.post("/suscribirviandasfaltantes", subController::suscribirViandasFaltantes);
+        app.post("/suscribirdesperfecto", subController::suscribirDesperfecto);
+        app.get("/suscriptores", subController::getSubscriptores);
     }
 
     public static ObjectMapper createObjectMapper() {

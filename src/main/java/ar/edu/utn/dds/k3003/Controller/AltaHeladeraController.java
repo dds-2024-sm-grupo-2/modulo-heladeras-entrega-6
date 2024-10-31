@@ -3,6 +3,7 @@ package ar.edu.utn.dds.k3003.Controller;
 import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.facades.dtos.HeladeraDTO;
 import ar.edu.utn.dds.k3003.model.Heladera;
+import ar.edu.utn.dds.k3003.model.HeladeraDTO2;
 import ar.edu.utn.dds.k3003.repositories.HeladeraMapper;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
 import io.javalin.http.Context;
@@ -21,7 +22,7 @@ public class AltaHeladeraController implements Handler {
     @Override
     public void handle(@NotNull Context context) throws Exception {
         try {
-            HeladeraDTO heladeraDTO = context.bodyAsClass(HeladeraDTO.class);
+            HeladeraDTO2 heladeraDTO = context.bodyAsClass(HeladeraDTO2.class);
             var heladeraDTOReturn= fachada.agregar(heladeraDTO);
             context.json(heladeraDTOReturn);
             context.status(HttpStatus.CREATED);

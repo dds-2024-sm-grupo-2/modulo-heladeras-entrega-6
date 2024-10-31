@@ -1,10 +1,13 @@
 package ar.edu.utn.dds.k3003.app;
 
+import ar.edu.utn.dds.k3003.facades.FachadaColaboradores;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.facades.dtos.*;
-import ar.edu.utn.dds.k3003.model.Heladera;
-import ar.edu.utn.dds.k3003.model.Temperatura;
-import ar.edu.utn.dds.k3003.model.Vianda;
+import ar.edu.utn.dds.k3003.model.*;
+import ar.edu.utn.dds.k3003.model.Subscriptor.Subscriptor;
+import ar.edu.utn.dds.k3003.model.Subscriptor.SubscriptorDesperfecto;
+import ar.edu.utn.dds.k3003.model.Subscriptor.SubscriptorViandasDisponibles;
+import ar.edu.utn.dds.k3003.model.Subscriptor.SubscriptorViandasFaltantes;
 import ar.edu.utn.dds.k3003.repositories.HeladeraMapper;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
 import ar.edu.utn.dds.k3003.repositories.TemperaturaMapper;
@@ -12,16 +15,16 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Transient;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 
 @Setter
@@ -32,13 +35,14 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private final HeladeraRepository repoHeladera;
     private final HeladeraMapper heladeraMapper;
     private FachadaViandas fachadaViandas;
+    private FachadaColaboradores fachadaColaboradores;
     private final TemperaturaMapper temperaturaMapper;
     private static AtomicLong seqId = new AtomicLong();
 
-  private Counter heladerasCreadasCounter;
-  private Counter viandasEnHeladerasCounter;
-  private Counter temperaturasRegistradasCounter;
-  private PrometheusMeterRegistry registry;
+    private Counter heladerasCreadasCounter;
+    private Counter viandasEnHeladerasCounter;
+    private Counter temperaturasRegistradasCounter;
+    private PrometheusMeterRegistry registry;
 
     public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper) {
         this.temperaturaMapper = temperaturaMapper;
@@ -46,21 +50,26 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         this.heladeraMapper = heladeraMapper;
     }
 
-    public Fachada(){
+    public Fachada() {
         this.repoHeladera = new HeladeraRepository();
         this.heladeraMapper = new HeladeraMapper();
         this.temperaturaMapper = new TemperaturaMapper();
     }
 
 
-    public HeladeraDTO agregar(HeladeraDTO heladeraDTO) {
-        Heladera heladera = new Heladera(heladeraDTO.getNombre());
-        heladera.setId(heladeraDTO.getId());
-        //System.out.println(heladera.getId());
+    public HeladeraDTO agregar(@NotNull HeladeraDTO2 heladeraDTO) {
+        Heladera heladera = new Heladera(heladeraDTO.getNombre(), heladeraDTO.getCantidadTotalDeViandas());
+        SensorMovimiento sensorMovimiento = new SensorMovimiento();
+        heladera.setSensor(sensorMovimiento);
+        this.repoHeladera.guardarSensor(sensorMovimiento);
         this.repoHeladera.guardar(heladera);
         heladerasCreadasCounter.increment();
-        //System.out.println(this.repoHeladera.heladeras.stream().map(h->h.getId()).toList());
         return heladeraMapper.map(heladera);
+    }
+
+    @Override
+    public HeladeraDTO agregar(HeladeraDTO heladeraDTO) {
+        return null;
     }
 
     /**
@@ -73,20 +82,18 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         Heladera heladera = this.repoHeladera.findById(integer);
         ViandaDTO viandaDTO = fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
         Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
-        //fachadaViandas.modificarEstado(s, EstadoViandaEnum.DEPOSITADA);
-        //ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(s);
-        //Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
-        System.out.println("aaaa" + viandaDTO.getEstado().toString());
         heladera.guardarVianda(vianda);
         repoHeladera.guardarVianda(vianda);
         repoHeladera.guardar(heladera);
         repoHeladera.actualizar(heladera);
         viandasEnHeladerasCounter.increment();
+        this.chequearViandasDisponibles(heladera);
+        this.chequearViandasFaltantes(heladera);
     }
 
     @Override
     public Integer cantidadViandas(Integer integer) throws NoSuchElementException {
-        int cantidadViandas= repoHeladera.obtenerViandasDeHeladera(integer).size();
+        int cantidadViandas = repoHeladera.obtenerViandasDeHeladera(integer).size();
         Heladera heladera = repoHeladera.findById(integer);
         heladera.setCantidadDeViandas(cantidadViandas);
         repoHeladera.guardar(heladera);
@@ -103,6 +110,8 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         fachadaViandas.modificarEstado(vianda.getQr(), EstadoViandaEnum.RETIRADA);
         repoHeladera.eliminarVianda(vianda);
         repoHeladera.actualizar(heladera);
+        this.chequearViandasDisponibles(heladera);
+        this.chequearViandasFaltantes(heladera);
     }
 
     @Override
@@ -123,20 +132,74 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
 
     @Override
     public void setViandasProxy(FachadaViandas fachadaViandas) {
-    this.fachadaViandas= fachadaViandas;
+        this.fachadaViandas = fachadaViandas;
     }
 
-  public void setRegistry(PrometheusMeterRegistry registry) {
-    this.registry = registry;
-    this.heladerasCreadasCounter = Counter.builder("app.heladeras.creadas")
-        .description("Numero de heladeras creadas")
-        .register(registry);
-    this.temperaturasRegistradasCounter = Counter.builder("app.temperaturas.registradas")
-        .description("Numero de temperaturas registradas")
-        .register(registry);
-    this.viandasEnHeladerasCounter=Counter.builder("app.viandas.heladeras")
-        .description("Numero de viandas en heladera")
-        .register(registry);
-  }
+    public SensorMovimiento activarSensorMovimiento(Heladera heladera) {
+        SensorMovimiento sensorMovimiento = heladera.getSensor();
+        sensorMovimiento.setEstado(Boolean.TRUE);
+        repoHeladera.actualizar(heladera);
+        repoHeladera.actualizarSensor(sensorMovimiento);
+        return sensorMovimiento;
+    }
 
+    public void setRegistry(PrometheusMeterRegistry registry) {
+        this.registry = registry;
+        this.heladerasCreadasCounter = Counter.builder("app.heladeras.creadas")
+                .description("Numero de heladeras creadas")
+                .register(registry);
+        this.temperaturasRegistradasCounter = Counter.builder("app.temperaturas.registradas")
+                .description("Numero de temperaturas registradas")
+                .register(registry);
+        this.viandasEnHeladerasCounter = Counter.builder("app.viandas.heladeras")
+                .description("Numero de viandas en heladera")
+                .register(registry);
+    }
+
+    public Collection<Long> chequearViandasDisponibles(Heladera heladera) {
+        Integer cantDisponibles = heladera.getCantViandas();
+        Collection<Long> subs = new ArrayList<>();
+
+        for (SubscriptorViandasDisponibles subscriptor : heladera.getSubscriptoresViandasDisponibles()) {
+            if (Objects.equals(subscriptor.getNviandas(), cantDisponibles)) {
+                subs.add(subscriptor.getIdColaborador());
+            }
+        }
+
+        if (!subs.isEmpty()) {
+            return subs;
+        } else {
+            return null;
+        }
+    }
+
+    public Collection<Long> chequearViandasFaltantes(Heladera heladera) {
+        Integer cantTotal = heladera.getCantidadDeViandas();
+        Integer cantDisponibles = heladera.getCantViandas();
+        Collection<Long> subs = new ArrayList<>();
+
+        for (SubscriptorViandasFaltantes sub : heladera.getSubscriptoresViandasFaltantes()) {
+            if (cantTotal - cantDisponibles == sub.getNviandasFaltantes()) {
+                subs.add(sub.getIdColaborador());
+            }
+        }
+
+        if (!subs.isEmpty()) {
+            return subs;
+        } else {
+            return null;
+        }
+    }
+
+    public Collection<Long> chequearDesperfecto(Heladera heladera){
+        Collection<Long> subs = new ArrayList<>();
+        for(SubscriptorDesperfecto sub: heladera.getSubscriptoresDesperfecto()){
+            subs.add(sub.getIdColaborador());
+        }
+        if (!subs.isEmpty()) {
+            return subs;
+        } else {
+            return null;
+        }
+    }
 }

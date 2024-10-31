@@ -1,6 +1,8 @@
 package ar.edu.utn.dds.k3003.repositories;
 
 import ar.edu.utn.dds.k3003.model.Heladera;
+import ar.edu.utn.dds.k3003.model.SensorMovimiento;
+import ar.edu.utn.dds.k3003.model.Subscriptor.Subscriptor;
 import ar.edu.utn.dds.k3003.model.Temperatura;
 import ar.edu.utn.dds.k3003.model.Vianda;
 import lombok.Getter;
@@ -28,12 +30,12 @@ public class HeladeraRepository {
     public EntityManager entityManager;
 
     public HeladeraRepository() {
-        this.heladeras=new ArrayList<>();
+        this.heladeras = new ArrayList<>();
         //this.entityManager=entityManagerFactory.createEntityManager();
     }
 
 
-    public void guardar(Heladera heladera){
+    public void guardar(Heladera heladera) {
         try {
             entityManager.getTransaction().begin();
             entityManager.persist(heladera);
@@ -46,20 +48,22 @@ public class HeladeraRepository {
         }
     }
 
-    public Heladera findById (long id){
+    public Heladera findById(long id) {
 
-        Heladera heladeraEncontrada= entityManager.find(Heladera.class, (int) id);
+        Heladera heladeraEncontrada = entityManager.find(Heladera.class, (int) id);
         return heladeraEncontrada;
 
     }
-    public void remove(Heladera heladera){
+
+    public void remove(Heladera heladera) {
         this.heladeras.remove(heladera);
     }
-    public List<Heladera> findAllHeladeras(){
+
+    public List<Heladera> findAllHeladeras() {
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Heladera> criteriaQuery = criteriaBuilder.createQuery(Heladera.class);
-        Root<Heladera> heladeraRoot= criteriaQuery.from(Heladera.class);
+        Root<Heladera> heladeraRoot = criteriaQuery.from(Heladera.class);
         criteriaQuery.select(heladeraRoot);
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
@@ -92,6 +96,7 @@ public class HeladeraRepository {
             throw e;
         }
     }
+
     public List<Temperatura> obtenerTemperaturasDeHeladera(int heladeraId) {
         EntityTransaction transaction = entityManager.getTransaction();
         List<Temperatura> temperaturas = null;
@@ -141,6 +146,7 @@ public class HeladeraRepository {
             throw e;  // Vuelve a lanzar la excepción para que el llamador pueda manejarla
         }
     }
+
     public List<Vianda> obtenerViandasDeHeladera(int heladeraId) {
         EntityTransaction transaction = entityManager.getTransaction();
         List<Vianda> viandas = null;
@@ -166,18 +172,20 @@ public class HeladeraRepository {
         }
         return viandas;
     }
-    public void eliminarHeladeras(){
 
-            entityManager.getTransaction().begin();
-            try {
-                int deletedCount = entityManager.createQuery("DELETE FROM Heladera ").executeUpdate();
-                entityManager.getTransaction().commit();
-            } catch (Exception e) {
-                entityManager.getTransaction().rollback();
-                throw e;
-            }
+    public void eliminarHeladeras() {
+
+        entityManager.getTransaction().begin();
+        try {
+            int deletedCount = entityManager.createQuery("DELETE FROM Heladera ").executeUpdate();
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            throw e;
+        }
     }
-    public void eliminarViandas(){
+
+    public void eliminarViandas() {
         entityManager.getTransaction().begin();
         try {
             int deletedCount = entityManager.createQuery("DELETE FROM Vianda ").executeUpdate();
@@ -187,7 +195,8 @@ public class HeladeraRepository {
             throw e;
         }
     }
-    public void eliminarTemperaturas(){
+
+    public void eliminarTemperaturas() {
         entityManager.getTransaction().begin();
         try {
             int deletedCount = entityManager.createQuery("DELETE FROM Temperatura ").executeUpdate();
@@ -196,6 +205,72 @@ public class HeladeraRepository {
             entityManager.getTransaction().rollback();
             throw e;
         }
+    }
+
+    public void guardarSensor(SensorMovimiento sensor) {
+        EntityTransaction t = entityManager.getTransaction();
+        try {
+            t.begin();
+            entityManager.persist(sensor);
+            entityManager.merge(sensor);
+            t.commit();
+        } catch (Exception e) {
+            if (t != null && t.isActive()) {
+                t.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
+
+    public void actualizarSensor(SensorMovimiento sensorMovimiento) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            entityManager.merge(sensorMovimiento);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+
+    public void persistirSubscriptor(Subscriptor sub) {
+        EntityTransaction t = entityManager.getTransaction();
+        try {
+            t.begin();
+            entityManager.persist(sub);
+            entityManager.merge(sub);
+            t.commit();
+        } catch (Exception e) {
+            if (t != null && t.isActive()) {
+                t.rollback();
+            }
+            e.printStackTrace();
+        }
+
+    }
+    public void actualizarSubscriptor(Subscriptor sub){
+        EntityTransaction t = entityManager.getTransaction();
+        try {
+            t.begin();
+            entityManager.merge(sub);
+            t.commit();
+        } catch (Exception e) {
+            if (t.isActive()) {
+                t.rollback();
+            }
+            throw e;
+        }
+    }
+    public List<Subscriptor> findAllSubscriptores() {
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Subscriptor> criteriaQuery = criteriaBuilder.createQuery(Subscriptor.class);
+        Root<Subscriptor> subscriptorRoot = criteriaQuery.from(Subscriptor.class);
+        criteriaQuery.select(subscriptorRoot);
+        return entityManager.createQuery(criteriaQuery).getResultList();
     }
 }
 

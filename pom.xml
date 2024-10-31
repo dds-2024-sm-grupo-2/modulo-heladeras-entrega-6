@@ -25,7 +25,9 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.3.0</version> <!-- Asegúrate de tener una versión compatible -->
         <configuration>
           <finalName>TPDDSApp</finalName>
           <descriptorRefs>
