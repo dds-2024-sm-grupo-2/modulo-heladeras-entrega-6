@@ -1,5 +1,6 @@
 package ar.edu.utn.dds.k3003.model;
 
+import static ar.edu.utn.dds.k3003.app.WebApp.startEntityManagerFactory;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,7 +16,8 @@ import ar.edu.utn.dds.k3003.repositories.TemperaturaMapper;
 import ar.edu.utn.dds.k3003.repositories.ViandaMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.time.LocalDateTime;
 
 public class FachadaTest {
@@ -33,15 +35,18 @@ public class FachadaTest {
     repoHeladera = new HeladeraRepository();
     heladeraMapper = new HeladeraMapper();
     temperaturaMapper = new TemperaturaMapper();
+    EntityManagerFactory entityManagerFactory = startEntityManagerFactory();
 
     viandaMapper = new ViandaMapper();
     fachada = new ar.edu.utn.dds.k3003.app.Fachada(temperaturaMapper, repoHeladera, heladeraMapper);
+    fachada.getRepoHeladera().setEntityManagerFactory(entityManagerFactory);
+    fachada.getRepoHeladera().setEntityManager(entityManagerFactory.createEntityManager());
     //fachada = new Fachada();
   }
 
   @Test
   void testFachadaAgregar() {
-    Heladera heladera = new Heladera("Bombonera");
+    Heladera heladera = new Heladera("Bombonera",5);
     heladera.setId(11);
     HeladeraDTO heladeraDto = heladeraMapper.map(heladera);
     fachada.agregar(heladeraDto);
@@ -53,7 +58,7 @@ public class FachadaTest {
 
   @Test
   void testDepositar() {
-    Heladera heladera = new Heladera( "Bombonera");
+    Heladera heladera = new Heladera("Bombonera",5);
     heladera.setId(2);
     Vianda vianda1 = new Vianda("QR1", (long) 2, EstadoViandaEnum.PREPARADA, (long) 3, LocalDateTime.of(2024, 4, 28, 12, 30));
     Vianda vianda2 = new Vianda("QR1", (long) 3, EstadoViandaEnum.PREPARADA, (long) 3, LocalDateTime.of(2024, 4, 28, 12, 30));
@@ -95,7 +100,7 @@ public class FachadaTest {
   void testRetirar() {
     RetiroDTO retiroDTO = new RetiroDTO("Dos", "Tarjeta", 2);
     Vianda vianda1 = new Vianda("Dos", (long) 2, EstadoViandaEnum.PREPARADA, (long) 3, LocalDateTime.now());
-    Heladera heladera = new Heladera("Heladerota");
+    Heladera heladera = new Heladera("Bombonera",5);
     heladera.setId(2);
     ViandaDTO viandaDTO1 = viandaMapper.map(vianda1);
     FachadaViandas mockFachadaViandas = mock(FachadaViandas.class);
@@ -117,7 +122,7 @@ public class FachadaTest {
 
   @Test
   void testTemperatura() {
-    Heladera heladera = new Heladera("Heladerota");
+    Heladera heladera = new Heladera("Bombonera",5);
     heladera.setId(2);
     TemperaturaDTO temperaturaDTO= new TemperaturaDTO(23,2,LocalDateTime.now());
     fachada.agregar(heladeraMapper.map(heladera));
@@ -129,7 +134,7 @@ public class FachadaTest {
 
   @Test
   void testObtenerTemperaturas(){
-    Heladera heladera = new Heladera("Heladerota");
+    Heladera heladera = new Heladera("Bombonera",5);
     heladera.setId(2);
     TemperaturaDTO temperaturaDTO1= new TemperaturaDTO(23,2,LocalDateTime.of(2024,5,2,11,0));
     TemperaturaDTO temperaturaDTO2= new TemperaturaDTO(22,2,LocalDateTime.of(2024,04,28,10,30));

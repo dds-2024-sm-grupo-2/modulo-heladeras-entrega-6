@@ -31,10 +31,10 @@ public class PersistenceIT {
     }
     @Test
     public void testInsert() {
-        Heladera heladera = new Heladera("Carlos");
-        Heladera heladera1 = new Heladera("Tomas");
-        Heladera heladera2 = new Heladera("Lucio");
-        Heladera heladera3 = new Heladera("Puto");
+        Heladera heladera = new Heladera("Carlos",4);
+        Heladera heladera1 = new Heladera("Tomas",4);
+        Heladera heladera2 = new Heladera("Lucio",4);
+        Heladera heladera3 = new Heladera("Pu",4);
         entityManager.getTransaction().begin();
         entityManager.persist(heladera);
         entityManager.persist(heladera1);
