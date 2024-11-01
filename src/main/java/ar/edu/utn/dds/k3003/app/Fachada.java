@@ -5,6 +5,7 @@ import ar.edu.utn.dds.k3003.clients.IncidentesProxy;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.facades.dtos.*;
 import ar.edu.utn.dds.k3003.model.*;
+import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaConexionDTO;
 import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaFraudeDTO;
 import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaTemperaturaDTO;
 import ar.edu.utn.dds.k3003.model.Incidentes.TipoIncidenteEnum;
@@ -59,10 +60,13 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         Heladera heladera = new Heladera(heladeraDTO.getNombre(), heladeraDTO.getCantidadTotalDeViandas());
         SensorMovimiento sensorMovimiento = new SensorMovimiento();
         SensorTemperatura sensorTemperatura= new SensorTemperatura(heladeraDTO.getNtiempo(),heladeraDTO.getTempMax(), heladeraDTO.getTempMin());
+        SensorConexion sensorConexion= new SensorConexion();
         heladera.setSensor(sensorMovimiento);
         heladera.setSensorTemperatura(sensorTemperatura);
+        heladera.setSensorConexion(sensorConexion);
         this.repoHeladera.guardarSensor(sensorMovimiento);
         this.repoHeladera.guardarSensorTemperatura(sensorTemperatura);
+        this.repoHeladera.guardarSensorConexion(sensorConexion);
         this.repoHeladera.guardar(heladera);
         heladerasCreadasCounter.increment();
         return heladeraMapper.map(heladera);
@@ -237,6 +241,14 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         repoHeladera.actualizarSensorTemperatura(sensorTemperatura);
         incidentesProxy.crearIncidenteAlertaTemperatura(new IncidenteAlertaTemperaturaDTO(Long.valueOf(heladera.getId()),TipoIncidenteEnum.ALERTA_TEMPERATURA,resultado,temperatura));
         return sensorTemperatura;
+    }
+    public SensorConexion activarSensorConexion(Heladera heladera) {
+        SensorConexion sensorConexion = heladera.getSensorConexion();
+        sensorConexion.setEstado(Boolean.TRUE);
+        repoHeladera.actualizar(heladera);
+        repoHeladera.actualizarSensorConexion(sensorConexion);
+        incidentesProxy.crearIncidenteConexion(new IncidenteAlertaConexionDTO(Long.valueOf(heladera.getId()),TipoIncidenteEnum.ALERTA_FALLA_CONEXION,heladera.getSensorTemperatura().getNtiempo()));
+        return sensorConexion;
     }
 
 

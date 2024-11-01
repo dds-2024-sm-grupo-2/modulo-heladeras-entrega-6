@@ -36,6 +36,8 @@ public class Heladera {
     SensorMovimiento sensor;
     @OneToOne
     SensorTemperatura sensorTemperatura;
+    @OneToOne
+    SensorConexion sensorConexion;
     @Column
     private Boolean estaAbierta=true;
     @Column

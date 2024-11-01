@@ -1,5 +1,6 @@
 package ar.edu.utn.dds.k3003.clients;
 
+import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaConexionDTO;
 import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaFraudeDTO;
 import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaTemperaturaDTO;
 import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteDTO;
@@ -50,6 +51,21 @@ public class IncidentesProxy {
         Response<IncidenteDTO> execute = null;
         try {
             execute = service.crearIncidenteAlertaTemperatura(incidente).execute();
+            if (!execute.isSuccessful()) {
+                throw new NoSuchElementException("Error no se pudo crear el incidente");
+            }
+            if (execute.code() == HttpStatus.NOT_FOUND.getCode()) {
+                throw new NoSuchElementException("Error no se crear el incidente");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error de QR", e);
+        }
+        return execute.body();
+    }
+    public IncidenteDTO crearIncidenteConexion(IncidenteAlertaConexionDTO incidente) {
+        Response<IncidenteDTO> execute = null;
+        try {
+            execute = service.crearIncidenteAlertaConexion(incidente).execute();
             if (!execute.isSuccessful()) {
                 throw new NoSuchElementException("Error no se pudo crear el incidente");
             }

@@ -232,6 +232,34 @@ public class HeladeraRepository {
             e.printStackTrace();
         }
     }
+    public void guardarSensorConexion(SensorConexion sensor) {
+        EntityTransaction t = entityManager.getTransaction();
+        try {
+            t.begin();
+            entityManager.persist(sensor);
+            entityManager.merge(sensor);
+            t.commit();
+        } catch (Exception e) {
+            if (t != null && t.isActive()) {
+                t.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
+    public void actualizarSensorConexion(SensorConexion sensor) {
+        EntityTransaction t = entityManager.getTransaction();
+        try {
+            t.begin();
+            entityManager.merge(sensor);
+            t.commit();
+        } catch (Exception e) {
+            if (t != null && t.isActive()) {
+                t.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
+
     public void actualizarSensorTemperatura(SensorTemperatura sensor) {
         EntityTransaction t = entityManager.getTransaction();
         try {

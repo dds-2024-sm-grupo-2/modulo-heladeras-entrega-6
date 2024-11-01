@@ -45,6 +45,7 @@ public class WebApp {
         var objectMapper = createObjectMapper();
         var eliminarController = new EliminarController(fachada);
         var subController = new SubscriptoresController(fachada);
+        var sensorController=  new SensorController(fachada);
         var controllerEstado = new CambiarEstadoHeladeraController(fachada);
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
         fachada.setFachadaColaboradores(new ColaboradoresProxy(objectMapper));
@@ -118,7 +119,9 @@ public class WebApp {
 
 
         // Sensores
-        app.post("/activarSensor/{idHeladera}", new SensorController(fachada));
+        app.post("/activarSensor/{idHeladera}", sensorController);
+        app.post("/activarSensorConexion/{idHeladera}", sensorController::activarSensorConexion);
+
         // Cambiar estado de cerrado a abierto. De inactivo a activo (viceversa en ambos)
         app.post("/cambiarEstadoAbierto/{idHeladera}", controllerEstado::cambiarEstadoAbierto );
         app.post("/cambiarEstadoActivo/{idHeladera}", controllerEstado::cambiarEstadoActivo );
