@@ -4,15 +4,15 @@ import lombok.Data;
 
 @Data
 public class IncidenteAlertaTemperaturaDTO {
-    private Long idHeladera;
+    private Long heladeraId;
     private TipoIncidenteEnum tipoIncidente;
     private Boolean excedeTemperatura;
-    private Integer excesotemperatura;
+    private Integer excesoTemperatura;
 
     public IncidenteAlertaTemperaturaDTO(Long idHeladera, TipoIncidenteEnum tipoIncidente, Boolean excedeTemperatura, Integer excesotemperatura) {
-        this.idHeladera = idHeladera;
+        this.heladeraId = idHeladera;
         this.tipoIncidente = tipoIncidente;
-        this.excesotemperatura = excesotemperatura;
+        this.excesoTemperatura = excesotemperatura;
         this.excedeTemperatura = excedeTemperatura;
     }
     public IncidenteAlertaTemperaturaDTO() {}

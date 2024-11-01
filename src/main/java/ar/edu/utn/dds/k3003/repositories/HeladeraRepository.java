@@ -1,10 +1,7 @@
 package ar.edu.utn.dds.k3003.repositories;
 
-import ar.edu.utn.dds.k3003.model.Heladera;
-import ar.edu.utn.dds.k3003.model.SensorMovimiento;
+import ar.edu.utn.dds.k3003.model.*;
 import ar.edu.utn.dds.k3003.model.Subscriptor.Subscriptor;
-import ar.edu.utn.dds.k3003.model.Temperatura;
-import ar.edu.utn.dds.k3003.model.Vianda;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -212,6 +209,33 @@ public class HeladeraRepository {
         try {
             t.begin();
             entityManager.persist(sensor);
+            entityManager.merge(sensor);
+            t.commit();
+        } catch (Exception e) {
+            if (t != null && t.isActive()) {
+                t.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
+    public void guardarSensorTemperatura(SensorTemperatura sensor) {
+        EntityTransaction t = entityManager.getTransaction();
+        try {
+            t.begin();
+            entityManager.persist(sensor);
+            entityManager.merge(sensor);
+            t.commit();
+        } catch (Exception e) {
+            if (t != null && t.isActive()) {
+                t.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
+    public void actualizarSensorTemperatura(SensorTemperatura sensor) {
+        EntityTransaction t = entityManager.getTransaction();
+        try {
+            t.begin();
             entityManager.merge(sensor);
             t.commit();
         } catch (Exception e) {

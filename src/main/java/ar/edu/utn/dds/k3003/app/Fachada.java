@@ -6,6 +6,7 @@ import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.facades.dtos.*;
 import ar.edu.utn.dds.k3003.model.*;
 import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaFraudeDTO;
+import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaTemperaturaDTO;
 import ar.edu.utn.dds.k3003.model.Incidentes.TipoIncidenteEnum;
 import ar.edu.utn.dds.k3003.model.Subscriptor.*;
 import ar.edu.utn.dds.k3003.repositories.HeladeraMapper;
@@ -18,6 +19,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 
+import javax.swing.text.StyledEditorKit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -56,8 +58,11 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     public HeladeraDTO agregar(@NotNull HeladeraDTO2 heladeraDTO) {
         Heladera heladera = new Heladera(heladeraDTO.getNombre(), heladeraDTO.getCantidadTotalDeViandas());
         SensorMovimiento sensorMovimiento = new SensorMovimiento();
+        SensorTemperatura sensorTemperatura= new SensorTemperatura(heladeraDTO.getNtiempo(),heladeraDTO.getTempMax(), heladeraDTO.getTempMin());
         heladera.setSensor(sensorMovimiento);
+        heladera.setSensorTemperatura(sensorTemperatura);
         this.repoHeladera.guardarSensor(sensorMovimiento);
+        this.repoHeladera.guardarSensorTemperatura(sensorTemperatura);
         this.repoHeladera.guardar(heladera);
         heladerasCreadasCounter.increment();
         return heladeraMapper.map(heladera);
@@ -118,6 +123,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         heladera.agregarTemperatura(temperatura);
         repoHeladera.actualizar(heladera);
         temperaturasRegistradasCounter.increment();
+        chequearSensorTemperatura(heladera);
     }
 
     @Override
@@ -202,4 +208,38 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             return null;
         }
     }
+    public void chequearSensorTemperatura(Heladera heladera){
+        SensorTemperatura sensorTemperatura= heladera.getSensorTemperatura();
+        Collection<Temperatura>temps= heladera.getTemperaturas();
+        Integer ntiempo= sensorTemperatura.getNtiempo();
+        Integer counterMax=0;
+        Integer counterMin=0;
+        Boolean resultado= Boolean.FALSE;
+        Integer i=0;
+        while(i<ntiempo && ntiempo<=temps.size()) {
+            if (sensorTemperatura.getTempMax() < temps.stream().toList().get(temps.size()-i-1).getTemperatura()) {
+                counterMax++;
+            }
+            if (sensorTemperatura.getTempMin() > temps.stream().toList().get(temps.size()-i-1).getTemperatura()) {
+                counterMin++;
+            }
+            i++;
+        }
+        if(counterMax.equals(sensorTemperatura.getNtiempo()) || counterMin.equals(sensorTemperatura.getNtiempo())) {
+            resultado=Boolean.TRUE;
+            activarSensorTemperatura(heladera,resultado,sensorTemperatura.getNtiempo());
+        }
+}
+    public SensorTemperatura activarSensorTemperatura(Heladera heladera, Boolean resultado, Integer temperatura) {
+        SensorTemperatura sensorTemperatura = heladera.getSensorTemperatura();
+        sensorTemperatura.setEstado(Boolean.TRUE);
+        repoHeladera.actualizar(heladera);
+        repoHeladera.actualizarSensorTemperatura(sensorTemperatura);
+        incidentesProxy.crearIncidenteAlertaTemperatura(new IncidenteAlertaTemperaturaDTO(Long.valueOf(heladera.getId()),TipoIncidenteEnum.ALERTA_TEMPERATURA,resultado,temperatura));
+        return sensorTemperatura;
+    }
+
+
+
+
 }

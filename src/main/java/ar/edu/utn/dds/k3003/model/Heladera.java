@@ -34,6 +34,8 @@ public class Heladera {
     Collection<Temperatura> temperaturas;
     @OneToOne
     SensorMovimiento sensor;
+    @OneToOne
+    SensorTemperatura sensorTemperatura;
     @Column
     private Boolean estaAbierta=true;
     @Column
