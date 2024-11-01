@@ -1,10 +1,12 @@
 package ar.edu.utn.dds.k3003.app;
 
 import ar.edu.utn.dds.k3003.clients.ColaboradoresProxy;
-import ar.edu.utn.dds.k3003.facades.FachadaColaboradores;
+import ar.edu.utn.dds.k3003.clients.IncidentesProxy;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.facades.dtos.*;
 import ar.edu.utn.dds.k3003.model.*;
+import ar.edu.utn.dds.k3003.model.Incidentes.IncidenteAlertaFraudeDTO;
+import ar.edu.utn.dds.k3003.model.Incidentes.TipoIncidenteEnum;
 import ar.edu.utn.dds.k3003.model.Subscriptor.*;
 import ar.edu.utn.dds.k3003.repositories.HeladeraMapper;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
@@ -16,13 +18,8 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Transient;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 
 @Setter
@@ -34,6 +31,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private final HeladeraMapper heladeraMapper;
     private FachadaViandas fachadaViandas;
     private ColaboradoresProxy fachadaColaboradores;
+    private IncidentesProxy incidentesProxy;
     private final TemperaturaMapper temperaturaMapper;
     private static AtomicLong seqId = new AtomicLong();
 
@@ -138,6 +136,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         sensorMovimiento.setEstado(Boolean.TRUE);
         repoHeladera.actualizar(heladera);
         repoHeladera.actualizarSensor(sensorMovimiento);
+        incidentesProxy.crearIncidenteFraude(new IncidenteAlertaFraudeDTO(Long.valueOf(heladera.getId()), TipoIncidenteEnum.ALERTA_FRAUDE));
         return sensorMovimiento;
     }
 

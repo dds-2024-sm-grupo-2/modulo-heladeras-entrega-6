@@ -31,7 +31,7 @@ public class SensorController implements Handler{
             Heladera heladera = fachada.getRepoHeladera().findById(parseInt(id));
             SensorMovimiento sensorMovimiento = fachada.activarSensorMovimiento(heladera);
             HeladeraSensor heladeraSensor = new HeladeraSensor(heladera.getId(),sensorMovimiento.getEstado());
-            ctx.json(heladeraSensor);
+            ctx.json("Sensor de movimiento activado");
             ctx.status(HttpStatus.OK);
         } catch (Exception e){
             ctx.status(HttpStatus.BAD_REQUEST);
