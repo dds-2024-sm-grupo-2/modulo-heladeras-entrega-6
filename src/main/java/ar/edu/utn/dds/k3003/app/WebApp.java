@@ -98,7 +98,7 @@ public class WebApp {
         app.get("/", ctx -> ctx.result("Hola"));
         app.post("/heladeras", new AltaHeladeraController(fachada));
         app.get("/heladeras/{idHeladera}", new SearchHeladeraController(fachada));
-        app.get("/heladeras/{idHeladera}", eliminarController::obtenerCantidadDeViandas);
+        app.get("/viandas/{idHeladera}", eliminarController::obtenerCantidadDeViandas);
         app.get("/heladeras", new ListaHeladerasController(fachada));
         app.post("/temperaturas", new RegistrarTemperaturasController(fachada, mqutils));
         app.get("/heladeras/{idHeladera}/temperaturas", new ObtenerTemperaturasController(fachada));
