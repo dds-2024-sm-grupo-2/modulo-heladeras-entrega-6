@@ -40,7 +40,7 @@ public class EliminarController implements Handler {
         try {
             String id = ctx.pathParam("idHeladera");
             Heladera heladera = fachada.getRepoHeladera().findById(parseInt(id));
-            ctx.json(heladera.getCantViandas()t());
+            ctx.json(heladera.getCantViandas());
             ctx.status(HttpStatus.OK);
             //context.result("Heladera obtenida correctamente");
         }catch (Exception e){
