@@ -2,10 +2,13 @@ package ar.edu.utn.dds.k3003.Controller;
 
 import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
+import ar.edu.utn.dds.k3003.model.Heladera;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
+
+import static java.lang.Integer.parseInt;
 
 public class EliminarController implements Handler {
     private Fachada fachada;
@@ -32,5 +35,17 @@ public class EliminarController implements Handler {
     public void eliminarTemperaturas(Context ctx) {
         fachada.getRepoHeladera().eliminarTemperaturas();
         ctx.status(HttpStatus.NO_CONTENT);
+    }
+    public void obtenerCantidadDeViandas(Context ctx){
+        try {
+            String id = ctx.pathParam("idHeladera");
+            Heladera heladera = fachada.getRepoHeladera().findById(parseInt(id));
+            ctx.json(heladera.getCantViandas()t());
+            ctx.status(HttpStatus.OK);
+            //context.result("Heladera obtenida correctamente");
+        }catch (Exception e){
+            ctx.status(HttpStatus.NOT_FOUND);
+            ctx.result("No se encontro el id del heladera");
+        }
     }
 }
