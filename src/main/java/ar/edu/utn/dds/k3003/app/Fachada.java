@@ -110,9 +110,12 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     public void retirar(RetiroDTO retiroDTO) throws NoSuchElementException {
         Heladera heladera = this.repoHeladera.findById(retiroDTO.getHeladeraId());
         ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(retiroDTO.getQrVianda());
+        Retiro retiro= new Retiro(retiroDTO.getQrVianda(),retiroDTO.getTarjeta(),retiroDTO.getHeladeraId());
+        heladera.agregarRetiro(retiro);
         Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
         heladera.eliminarVianda(vianda);
         fachadaViandas.modificarEstado(vianda.getQr(), EstadoViandaEnum.RETIRADA);
+        repoHeladera.persistirRetiro(retiro);
         repoHeladera.eliminarVianda(vianda);
         repoHeladera.actualizar(heladera);
         this.chequearViandasDisponibles(heladera);

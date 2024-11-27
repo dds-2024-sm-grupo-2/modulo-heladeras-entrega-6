@@ -9,10 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Optional;
+import java.util.*;
 
 
 @Getter
@@ -43,6 +40,8 @@ public class Heladera {
     @Column
     private Boolean estaActiva=true;
 
+    @OneToMany(mappedBy = "heladera", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Retiro> retiros;
 
     //Subscripciones a heladeras.
     @ManyToMany (mappedBy = "heladerasSuscriptas")
@@ -64,6 +63,7 @@ public class Heladera {
         this.subscriptoresViandasFaltantes= new ArrayList<>();
         this.subscriptoresViandasDisponibles= new ArrayList<>();
         this.subscriptoresDesperfecto= new ArrayList<>();
+        this.retiros= new ArrayList<>();
     }
     protected Heladera(){
 
@@ -101,4 +101,8 @@ public class Heladera {
         temperaturas.add(temperatura);
     }
     public Integer getCantViandas(){return viandas.size();}
+    public void agregarRetiro (Retiro retiro){
+        retiros.add(retiro);
+    }
+
 }

@@ -218,6 +218,7 @@ public class HeladeraRepository {
             e.printStackTrace();
         }
     }
+
     public void guardarSensorTemperatura(SensorTemperatura sensor) {
         EntityTransaction t = entityManager.getTransaction();
         try {
@@ -232,6 +233,7 @@ public class HeladeraRepository {
             e.printStackTrace();
         }
     }
+
     public void guardarSensorConexion(SensorConexion sensor) {
         EntityTransaction t = entityManager.getTransaction();
         try {
@@ -246,6 +248,7 @@ public class HeladeraRepository {
             e.printStackTrace();
         }
     }
+
     public void actualizarSensorConexion(SensorConexion sensor) {
         EntityTransaction t = entityManager.getTransaction();
         try {
@@ -303,7 +306,8 @@ public class HeladeraRepository {
         }
 
     }
-    public void actualizarSubscriptor(Subscriptor sub){
+
+    public void actualizarSubscriptor(Subscriptor sub) {
         EntityTransaction t = entityManager.getTransaction();
         try {
             t.begin();
@@ -316,6 +320,7 @@ public class HeladeraRepository {
             throw e;
         }
     }
+
     public List<Subscriptor> findAllSubscriptores() {
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -323,6 +328,22 @@ public class HeladeraRepository {
         Root<Subscriptor> subscriptorRoot = criteriaQuery.from(Subscriptor.class);
         criteriaQuery.select(subscriptorRoot);
         return entityManager.createQuery(criteriaQuery).getResultList();
+    }
+
+    public void persistirRetiro(Retiro r) {
+        EntityTransaction t = entityManager.getTransaction();
+        try {
+            t.begin();
+            entityManager.persist(r);
+            entityManager.merge(r);
+            t.commit();
+        } catch (Exception e) {
+            if (t != null && t.isActive()) {
+                t.rollback();
+            }
+            e.printStackTrace();
+        }
+
     }
 }
 
