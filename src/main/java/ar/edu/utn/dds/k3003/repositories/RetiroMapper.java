@@ -8,7 +8,7 @@ import ar.edu.utn.dds.k3003.model.Retiro;
 public class RetiroMapper {
 
     public static RetiroDTO map(Retiro retiro){
-        RetiroDTO dto = new RetiroDTO(retiro.getQrVianda(), retiro.getTarjeta(), retiro.getHeladera().getId());
+        RetiroDTO dto = new RetiroDTO(retiro.getQrVianda(), retiro.getTarjeta(), Math.toIntExact(retiro.getHeladeraID()));
         return dto;
     }
     public RetiroMapper() {

@@ -267,7 +267,7 @@ public class Fachada implements FachadaHeladeras {
 
     public List<RetiroDTO> getRetirosDelDia(Integer idHeladera){
         Heladera heladera = repoHeladera.findById(Long.valueOf(idHeladera));
-        List <Retiro> retiros = heladera.getRetiros();
+        Collection <Retiro> retiros = heladera.getRetiros();
         LocalDateTime hoy = LocalDateTime.now();
         return heladera.getRetiros().stream()
                 .filter(retiro -> retiro.getFechaRetiro().equals(hoy))
