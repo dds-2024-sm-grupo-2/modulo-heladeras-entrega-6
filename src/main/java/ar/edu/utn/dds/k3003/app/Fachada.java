@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.text.StyledEditorKit;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -269,11 +270,16 @@ public class Fachada implements FachadaHeladeras {
         Heladera heladera = repoHeladera.findById(Long.valueOf(idHeladera));
         Collection <Retiro> retiros = heladera.getRetiros();
         LocalDateTime hoy = LocalDateTime.now();
-        return heladera.getRetiros().stream()
-                .filter(retiro -> retiro.getFechaRetiro().equals(hoy))
+        return retiros.stream()
+                .filter(retiro -> {
+                    LocalDate fechaRetiro = retiro.getFechaRetiro() // Suponiendo LocalDateTime
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+                    return fechaRetiro.equals(hoy);
+                })
                 .map(RetiroMapper::map)
                 .collect(Collectors.toList());
     }
 
-
 }
+
