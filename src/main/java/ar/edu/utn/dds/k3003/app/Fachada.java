@@ -49,11 +49,11 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private Counter temperaturasRegistradasCounter;
     private PrometheusMeterRegistry registry;
 
-    public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper) {
+    public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper, RetiroMapper retiroMapper) {
         this.temperaturaMapper = temperaturaMapper;
         this.repoHeladera = repoHeladera;
         this.heladeraMapper = heladeraMapper;
-        this.retiroMapper = new RetiroMapper();
+        this.retiroMapper = retiroMapper;
     }
 
     public Fachada() {
