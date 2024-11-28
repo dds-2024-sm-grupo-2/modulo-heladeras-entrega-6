@@ -99,6 +99,7 @@ public class WebApp {
         app.post("/heladeras", new AltaHeladeraController(fachada));
         app.get("/heladeras/{idHeladera}", new SearchHeladeraController(fachada));
         app.get("/viandas/{idHeladera}", eliminarController::obtenerCantidadDeViandas);
+        app.get("/retiros/{idHeladera}", eliminarController::obtenerRetirosDelDía);
         app.get("/heladeras", new ListaHeladerasController(fachada));
         app.post("/temperaturas", new RegistrarTemperaturasController(fachada, mqutils));
         app.get("/heladeras/{idHeladera}/temperaturas", new ObtenerTemperaturasController(fachada));

@@ -48,4 +48,16 @@ public class EliminarController implements Handler {
             ctx.result("No se encontro el id del heladera");
         }
     }
+    public void obtenerRetirosDelDía(Context ctx){
+        try {
+            String id = ctx.pathParam("idHeladera");
+            ctx.json(fachada.getRetirosDelDia(Integer.valueOf(id)));
+            ctx.status(HttpStatus.OK);
+            //context.result("Heladera obtenida correctamente");
+        }catch (Exception e){
+            ctx.status(HttpStatus.NOT_FOUND);
+            ctx.result("No se encontro el id del heladera");
+        }
+    }
+
 }

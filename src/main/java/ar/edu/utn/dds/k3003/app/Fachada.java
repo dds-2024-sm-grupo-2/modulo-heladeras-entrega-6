@@ -17,12 +17,16 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import lombok.Getter;
 import lombok.Setter;
+import net.bytebuddy.asm.Advice;
 import org.jetbrains.annotations.NotNull;
 
 
 import javax.swing.text.StyledEditorKit;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 
 @Setter
@@ -111,6 +115,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         Heladera heladera = this.repoHeladera.findById(retiroDTO.getHeladeraId());
         ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(retiroDTO.getQrVianda());
         Retiro retiro= new Retiro(retiroDTO.getQrVianda(),retiroDTO.getTarjeta(),retiroDTO.getHeladeraId());
+        retiro.setFechaRetiro(LocalDateTime.now());
         heladera.agregarRetiro(retiro);
         Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
         heladera.eliminarVianda(vianda);
@@ -254,7 +259,14 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         return sensorConexion;
     }
 
-
+    public List<Retiro> getRetirosDelDia(Integer idHeladera){
+        Heladera heladera = repoHeladera.findById(Long.valueOf(idHeladera));
+        List <Retiro> retiros = heladera.getRetiros();
+        LocalDateTime hoy = LocalDateTime.now();
+        return heladera.getRetiros().stream()
+                .filter(retiro -> retiro.getFechaRetiro().equals(hoy))
+                .collect(Collectors.toList());
+    }
 
 
 }

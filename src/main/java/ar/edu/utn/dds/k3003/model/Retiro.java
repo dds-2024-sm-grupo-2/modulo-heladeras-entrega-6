@@ -1,9 +1,13 @@
 package ar.edu.utn.dds.k3003.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+@Getter
+@Setter
 @Entity
 public class Retiro {
     @Id
