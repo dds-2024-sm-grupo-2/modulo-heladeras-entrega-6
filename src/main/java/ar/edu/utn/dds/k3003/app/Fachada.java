@@ -12,6 +12,7 @@ import ar.edu.utn.dds.k3003.model.Incidentes.TipoIncidenteEnum;
 import ar.edu.utn.dds.k3003.model.Subscriptor.*;
 import ar.edu.utn.dds.k3003.repositories.HeladeraMapper;
 import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
+import ar.edu.utn.dds.k3003.repositories.RetiroMapper;
 import ar.edu.utn.dds.k3003.repositories.TemperaturaMapper;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
@@ -36,6 +37,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
 
     private final HeladeraRepository repoHeladera;
     private final HeladeraMapper heladeraMapper;
+    private final RetiroMapper retiroMapper;
     private FachadaViandas fachadaViandas;
     private ColaboradoresProxy fachadaColaboradores;
     private IncidentesProxy incidentesProxy;
@@ -47,16 +49,18 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private Counter temperaturasRegistradasCounter;
     private PrometheusMeterRegistry registry;
 
-    public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper) {
+    public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper, RetiroMapper retiroMapper) {
         this.temperaturaMapper = temperaturaMapper;
         this.repoHeladera = repoHeladera;
         this.heladeraMapper = heladeraMapper;
+        this.retiroMapper = retiroMapper;
     }
 
     public Fachada() {
         this.repoHeladera = new HeladeraRepository();
         this.heladeraMapper = new HeladeraMapper();
         this.temperaturaMapper = new TemperaturaMapper();
+        this.retiroMapper= new RetiroMapper();
     }
 
 
@@ -259,12 +263,13 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         return sensorConexion;
     }
 
-    public List<Retiro> getRetirosDelDia(Integer idHeladera){
+    public List<RetiroDTO> getRetirosDelDia(Integer idHeladera){
         Heladera heladera = repoHeladera.findById(Long.valueOf(idHeladera));
         List <Retiro> retiros = heladera.getRetiros();
         LocalDateTime hoy = LocalDateTime.now();
         return heladera.getRetiros().stream()
                 .filter(retiro -> retiro.getFechaRetiro().equals(hoy))
+                .map(RetiroMapper::map)
                 .collect(Collectors.toList());
     }
 
