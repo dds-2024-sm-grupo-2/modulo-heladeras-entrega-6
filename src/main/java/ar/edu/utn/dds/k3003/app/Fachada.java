@@ -2,6 +2,7 @@ package ar.edu.utn.dds.k3003.app;
 
 import ar.edu.utn.dds.k3003.clients.ColaboradoresProxy;
 import ar.edu.utn.dds.k3003.clients.IncidentesProxy;
+import ar.edu.utn.dds.k3003.facades.FachadaHeladeras;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.facades.dtos.*;
 import ar.edu.utn.dds.k3003.model.*;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @Setter
 @Getter
 
-public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
+public class Fachada implements FachadaHeladeras {
 
     private final HeladeraRepository repoHeladera;
     private final HeladeraMapper heladeraMapper;
@@ -49,11 +50,11 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private Counter temperaturasRegistradasCounter;
     private PrometheusMeterRegistry registry;
 
-    public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper, RetiroMapper retiroMapper) {
+    public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper) {
         this.temperaturaMapper = temperaturaMapper;
         this.repoHeladera = repoHeladera;
         this.heladeraMapper = heladeraMapper;
-        this.retiroMapper = retiroMapper;
+        retiroMapper = null;
     }
 
     public Fachada() {
