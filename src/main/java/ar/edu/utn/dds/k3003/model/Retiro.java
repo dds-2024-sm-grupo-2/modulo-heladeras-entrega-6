@@ -23,17 +23,14 @@ public class Retiro {
     )
     @Column
     private LocalDateTime fechaRetiro;
-
-    @ManyToOne
-    @JoinColumn(name = "heladera_id", nullable = false)
-    private Heladera heladera;
+    @Column
+    private Long heladeraID;
 
     public Retiro(String qrVianda, String tarjeta, Integer heladeraId) {
         this.qrVianda = qrVianda;
         this.tarjeta = tarjeta;
-        this.heladera = new Heladera();
-        heladera.setId(heladeraId);
         this.fechaRetiro = LocalDateTime.now();
+        this.heladeraID= Long.valueOf(heladeraId);
     }
 
     public Retiro(String qrVianda, String tarjeta, LocalDateTime fechaRetiro, Integer heladeraId) {

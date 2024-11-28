@@ -40,8 +40,8 @@ public class Heladera {
     @Column
     private Boolean estaActiva=true;
 
-    @OneToMany(mappedBy = "heladera", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Retiro> retiros;
+    @OneToMany(mappedBy = "heladeraID")
+     Collection<Retiro> retiros;
 
     //Subscripciones a heladeras.
     @ManyToMany (mappedBy = "heladerasSuscriptas")
