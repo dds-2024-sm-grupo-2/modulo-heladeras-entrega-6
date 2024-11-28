@@ -248,6 +248,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
 }
     public SensorTemperatura activarSensorTemperatura(Heladera heladera, Boolean resultado, Integer temperatura) {
         SensorTemperatura sensorTemperatura = heladera.getSensorTemperatura();
+        
         sensorTemperatura.setEstado(Boolean.TRUE);
         repoHeladera.actualizar(heladera);
         repoHeladera.actualizarSensorTemperatura(sensorTemperatura);
