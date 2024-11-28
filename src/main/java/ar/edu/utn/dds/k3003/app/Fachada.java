@@ -49,11 +49,11 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private Counter temperaturasRegistradasCounter;
     private PrometheusMeterRegistry registry;
 
-    public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper, RetiroMapper retiroMapper) {
+    public Fachada(TemperaturaMapper temperaturaMapper, HeladeraRepository repoHeladera, HeladeraMapper heladeraMapper) {
         this.temperaturaMapper = temperaturaMapper;
         this.repoHeladera = repoHeladera;
         this.heladeraMapper = heladeraMapper;
-        this.retiroMapper = retiroMapper;
+        this.retiroMapper = new RetiroMapper();
     }
 
     public Fachada() {
@@ -248,7 +248,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
 }
     public SensorTemperatura activarSensorTemperatura(Heladera heladera, Boolean resultado, Integer temperatura) {
         SensorTemperatura sensorTemperatura = heladera.getSensorTemperatura();
-        
+
         sensorTemperatura.setEstado(Boolean.TRUE);
         repoHeladera.actualizar(heladera);
         repoHeladera.actualizarSensorTemperatura(sensorTemperatura);
