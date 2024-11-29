@@ -60,7 +60,6 @@ public class EliminarController implements Handler {
             List<RetiroDTO> retiros= fachada.getRetirosDelDia(id);
             ctx.json(retiros);
             ctx.status(HttpStatus.OK);
-
             //context.result("Heladera obtenida correctamente");
         }catch (Exception e){
             ctx.status(HttpStatus.NOT_FOUND);

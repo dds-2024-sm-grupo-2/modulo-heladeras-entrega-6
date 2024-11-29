@@ -121,6 +121,7 @@ public class Fachada implements FachadaHeladeras {
         Heladera heladera = this.repoHeladera.findById(retiroDTO.getHeladeraId());
         ViandaDTO viandaDTO = this.fachadaViandas.buscarXQR(retiroDTO.getQrVianda());
         Retiro retiro= new Retiro(retiroDTO.getQrVianda(),retiroDTO.getTarjeta(),retiroDTO.getHeladeraId());
+        retiro.setId(retiroDTO.getId());
         retiro.setFechaRetiro(LocalDateTime.now());
         heladera.agregarRetiro(retiro);
         Vianda vianda = new Vianda(viandaDTO.getCodigoQR(), (long) viandaDTO.getHeladeraId(), viandaDTO.getEstado(), viandaDTO.getColaboradorId(), viandaDTO.getFechaElaboracion());
