@@ -73,6 +73,7 @@ public class SubscriptoresController implements Handler {
             ctx.result("Error de solicitud");
         }
     }
+    /**
     public void desuscribirViandasDisponibles(Context ctx){
         try{
             DesSuscripcionDTO dsub= ctx.bodyAsClass(DesSuscripcionDTO.class);
@@ -83,5 +84,5 @@ public class SubscriptoresController implements Handler {
         }
 
     }
-
+*/
 }
