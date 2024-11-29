@@ -8,6 +8,8 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 
 public class SubscriptoresController implements Handler {
     private final Fachada fachada;
@@ -73,16 +75,18 @@ public class SubscriptoresController implements Handler {
             ctx.result("Error de solicitud");
         }
     }
-    /**
     public void desuscribirViandasDisponibles(Context ctx){
         try{
             DesSuscripcionDTO dsub= ctx.bodyAsClass(DesSuscripcionDTO.class);
-            Heladera heladera =
+            Heladera heladera = fachada.getRepoHeladera().findById(dsub.getIdHeladera());
+            heladera.getSubscriptoresViandasDisponibles().removeIf(suscripcion -> Objects.equals(suscripcion.getIdColaborador(), dsub.getIdColab()));
+            fachada.getRepoHeladera().actualizar(heladera);
         }
-        catch{
-
+        catch(Exception e){
+            ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("Error de solicitud");
         }
 
     }
-*/
+
 }

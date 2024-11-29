@@ -3,6 +3,7 @@ package ar.edu.utn.dds.k3003.Controller;
 import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.model.Heladera;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -51,7 +52,9 @@ public class EliminarController implements Handler {
     public void obtenerRetirosDelDia(Context ctx){
         try {
             String id = ctx.pathParam("idHeladera");
-            ctx.json(fachada.getRetirosDelDia(Integer.valueOf(id)));
+            ObjectMapper objectMapper = new ObjectMapper(); // Jackson
+            String jsonResponse = objectMapper.writeValueAsString(fachada.getRetirosDelDia(Integer.valueOf(id)));
+            ctx.json(jsonResponse);
             ctx.status(HttpStatus.OK);
             //context.result("Heladera obtenida correctamente");
         }catch (Exception e){
