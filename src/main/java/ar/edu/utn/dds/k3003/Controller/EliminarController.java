@@ -58,8 +58,9 @@ public class EliminarController implements Handler {
         try {
             int id = Integer.parseInt(ctx.pathParam("idHeladera"));
             List<RetiroDTO> retiros= fachada.getRetirosDelDia(id);
-            ctx.json(retiros);
+            ctx.json(retiros.toString());
             ctx.status(HttpStatus.OK);
+
             //context.result("Heladera obtenida correctamente");
         }catch (Exception e){
             ctx.status(HttpStatus.NOT_FOUND);
