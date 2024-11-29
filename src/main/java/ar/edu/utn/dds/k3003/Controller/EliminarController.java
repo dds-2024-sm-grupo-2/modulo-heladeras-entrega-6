@@ -48,7 +48,7 @@ public class EliminarController implements Handler {
             ctx.result("No se encontro el id del heladera");
         }
     }
-    public void obtenerRetirosDelDía(Context ctx){
+    public void obtenerRetirosDelDia(Context ctx){
         try {
             String id = ctx.pathParam("idHeladera");
             ctx.json(fachada.getRetirosDelDia(Integer.valueOf(id)));
