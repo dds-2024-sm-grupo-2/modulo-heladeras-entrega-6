@@ -9,6 +9,7 @@ public class RetiroMapper {
 
     public static RetiroDTO map(Retiro retiro){
         RetiroDTO dto = new RetiroDTO(retiro.getQrVianda(), retiro.getTarjeta(), Math.toIntExact(retiro.getHeladeraID()));
+        dto.setId(retiro.getId());
         return dto;
     }
     public RetiroMapper() {
