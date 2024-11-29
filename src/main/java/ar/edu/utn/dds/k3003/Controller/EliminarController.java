@@ -51,7 +51,7 @@ public class EliminarController implements Handler {
     public void obtenerRetirosDelDia(Context ctx){
         try {
             String id = ctx.pathParam("idHeladera");
-            ctx.json((fachada.getRetirosDelDia(Integer.valueOf(id))).toString());
+            ctx.json(fachada.getRetirosDelDia(Integer.valueOf(id)));
             ctx.status(HttpStatus.OK);
             //context.result("Heladera obtenida correctamente");
         }catch (Exception e){
