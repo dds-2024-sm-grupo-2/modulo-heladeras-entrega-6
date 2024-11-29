@@ -81,6 +81,7 @@ public class SubscriptoresController implements Handler {
             Heladera heladera = fachada.getRepoHeladera().findById(dsub.getIdHeladera());
             heladera.getSubscriptoresViandasDisponibles().removeIf(suscripcion -> Objects.equals(suscripcion.getIdColaborador(), dsub.getIdColab()));
             fachada.getRepoHeladera().actualizar(heladera);
+            ctx.json("Desuscrito de la heladera: " + dsub.getIdHeladera());
         }
         catch(Exception e){
             ctx.status(HttpStatus.BAD_REQUEST);

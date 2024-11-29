@@ -132,7 +132,7 @@ public class WebApp {
         app.post("/suscribirviandasdisponibles", subController::suscribirViandasDisponibles);
         app.post("/suscribirviandasfaltantes", subController::suscribirViandasFaltantes);
         app.post("/suscribirdesperfecto", subController::suscribirDesperfecto);
-        //app.post("/desuscribirViandasDisponible",subController::)
+        app.post("/desuscribirViandasDisponible",subController::desuscribirViandasDisponibles);
         app.get("/suscriptores", subController::getSubscriptores);
     }
 
