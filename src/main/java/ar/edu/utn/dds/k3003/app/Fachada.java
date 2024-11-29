@@ -271,12 +271,7 @@ public class Fachada implements FachadaHeladeras {
         Collection <Retiro> retiros = heladera.getRetiros();
         LocalDateTime hoy = LocalDateTime.now();
         return retiros.stream()
-                .filter(retiro -> {
-                    LocalDate fechaRetiro = retiro.getFechaRetiro() // Suponiendo LocalDateTime
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
-                    return fechaRetiro.equals(hoy);
-                })
+                .filter(retiro -> retiro.getFechaRetiro().getDayOfMonth() == hoy.getDayOfMonth() && retiro.getFechaRetiro().getMonth() == hoy.getMonth() && retiro.getFechaRetiro().getYear() == hoy.getYear())
                 .map(RetiroMapper::map)
                 .collect(Collectors.toList());
     }
