@@ -221,7 +221,12 @@ public class Fachada implements FachadaHeladeras {
             subs.add(sub.getIdColaborador());
         }
         if (!subs.isEmpty()) {
-            fachadaColaboradores.evento(new NotificacionDTO(subs, "Notificacion para heladera inactiva"));
+            if(heladera.getEstaActiva()== Boolean.TRUE) {
+                fachadaColaboradores.evento(new NotificacionDTO(subs, "La heladera "+ heladera.getId() +  " fue reparada."));
+            }
+            else {
+                fachadaColaboradores.evento(new NotificacionDTO(subs, "La heladera "+ heladera.getId() +  " se encuentra inactiva."));
+            }
             return subs;
         } else {
             return null;

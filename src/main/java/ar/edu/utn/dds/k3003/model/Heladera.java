@@ -36,9 +36,9 @@ public class Heladera {
     @OneToOne
     SensorConexion sensorConexion;
     @Column
-    private Boolean estaAbierta=true;
+    private Boolean estaAbierta=Boolean.TRUE;
     @Column
-    private Boolean estaActiva=true;
+    private Boolean estaActiva=Boolean.TRUE;
 
     @OneToMany(mappedBy = "heladeraID")
      Collection<Retiro> retiros;
